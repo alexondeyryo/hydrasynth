@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HYDRA RADIO v6.45</title>
+<title>HYDRA RADIO v6.46</title>
 <style>
 :root{--bg:#0a0c10;--pan:#161b22;--pan2:#1d242e;--acc:#ff5a1f;--acc2:#ffb340;--txt:#dfe6ee;--dim:#77828f;--lcd:#0c1a12;--lcdtx:#4dff88;}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -50,7 +50,7 @@ footer{font-size:10px;color:#4a5560;text-align:center;margin-top:6px;line-height
 </head>
 <body>
 <div class="wrap">
-  <div class="brand"><div class="logo"></div><div><h1>HYDRA <b>BASS SYNTH</b></h1><div class="ver">v6.45 · ОНЛАЙН-РАДИО · треки сменяются сами · MIDI-луп</div></div></div>
+  <div class="brand"><div class="logo"></div><div><h1>HYDRA <b>BASS SYNTH</b></h1><div class="ver">v6.46 · ОНЛАЙН-РАДИО · треки сменяются сами · MIDI-луп</div></div></div>
 
   <div id="settings" class="hidden">
   <div class="panel">
@@ -141,12 +141,12 @@ footer{font-size:10px;color:#4a5560;text-align:center;margin-top:6px;line-height
 
   <div class="hint">Мелодия собрана из повторяющихся мотивов в аккордах Am–F–C–G (или из твоего MIDI, зацикленного по треку). Перегруз баса срезает верхушки — в эти моменты даккинг глушит мелодию, поэтому на телефонах бас читается чётко. Саб-слой 808 идёт ниже 110 Гц без рваности. Архитектура трека каждый раз собирается заново — секции и их длина слегка варьируются.</div>
 
-  <footer>HYDRA RADIO v6.45 · жми ИГРАТЬ один раз — эфир играет бесконечно · MP3 требуется сеть</footer>
+  <footer>HYDRA RADIO v6.46 · жми ИГРАТЬ один раз — эфир играет бесконечно · MP3 требуется сеть</footer>
 </div>
 <script>
 
 "use strict";
-var SR=44100, TAU=Math.PI*2;
+var SR=44100, TAU=Math.PI*2, TS=1;
 function mkBuf(n){var a=new Float32Array(n);return a;}
 function rnd(a,b){return a+Math.random()*(b-a);}
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
@@ -221,7 +221,7 @@ function kick(dur,duckEnv,click){
   return b;
 }
 function snareHit(level,send){
-  var n=Math.floor(0.42*SR),b=mkBuf(n),i,t;
+  var n=Math.floor(0.42*TS*SR),b=mkBuf(n),i,t;
   // тело: два нисходящих синуса
   for(i=0;i<n;i++){t=i/SR;
     var e1=Math.exp(-t*26),e2=Math.exp(-t*38);
@@ -246,7 +246,7 @@ function snareHit(level,send){
   return b;
 }
 function hat(open,level){
-  var dur=open?0.14:0.035,n=Math.floor(dur*SR),b=mkBuf(n),i;
+  var dur=(open?0.14:0.035)*TS,n=Math.floor(dur*SR),b=mkBuf(n),i;
   for(i=0;i<n;i++)b[i]=(Math.random()*2-1);
   b=onepoleHP(b,7000,SR);
   var k=open?26:70;
@@ -254,7 +254,7 @@ function hat(open,level){
   return b;
 }
 function cowbell(level){
-  var n=Math.floor(0.32*SR),b=mkBuf(n),i;
+  var n=Math.floor(0.32*TS*SR),b=mkBuf(n),i;
   for(i=0;i<n;i++){var t=i/SR,e=Math.exp(-t*16);
     b[i]=(Math.sin(TAU*540*t)*0.5+Math.sin(TAU*800*t)*0.5)*Math.sign(Math.sin(TAU*540*t)+0.4)*e*level;}
   b=onepoleHP(b,600,SR);
@@ -421,13 +421,66 @@ function loadDrumKit(){
     });
   });
 }
+// ---- WSOLA: растяжение сэмпла без смены тона. Корреляция по ВХОДНЫМ перекрытиям:
+// хвост предыдущего зерна (вход) ищет продолжение во входном сигнале — фаза не плывёт ----
+function wsolaStretch(x,k){
+  var n=x.length,i,j;
+  if(Math.abs(k-1)<0.02||n<SR*0.08)return x;
+  var N=Math.floor(SR*0.05),Hs=Math.floor(N/2),Ha=Math.max(1,Math.round(Hs/k));
+  var maxS=Math.floor(Hs*0.5),corrN=N-Hs;
+  var outN=Math.max(N,Math.ceil((n-N)*k)+N);
+  var y=mkBuf(outN),w=mkBuf(outN);
+  var win=[];for(j=0;j<N;j++)win.push(0.5-0.5*Math.cos(TAU*j/N));
+  var inPos=0,outPos=0,c0=0;
+  var stepS=Math.max(1,Math.floor(maxS/8));
+  while(inPos+corrN+stepS<n&&outPos+N<outN){
+    if(outPos>0){
+      var bc=-1e9,bo=0,off;
+      for(off=-maxS;off<=maxS;off+=stepS){
+        var q=inPos+off;
+        if(q<0||q+corrN>=n)continue;
+        var cc=0,eo=0,ei=0;
+        for(j=0;j<corrN;j++){var va=x[c0+Hs+j],vb=x[q+j];cc+=va*vb;eo+=va*va;ei+=vb*vb;}
+        var nc=cc/(Math.sqrt(eo*ei)+1e-12);
+        if(nc>bc){bc=nc;bo=off;}
+      }
+      var bc2=bc-1e-9,bo2=0;
+      for(off=Math.max(-maxS,bo-stepS);off<=Math.min(maxS,bo+stepS);off++){
+        var q2=inPos+off;
+        if(q2<0||q2+corrN>=n)continue;
+        var cc2=0,eo2=0,ei2=0;
+        for(j=0;j<corrN;j++){var va2=x[c0+Hs+j],vb2=x[q2+j];cc2+=va2*vb2;eo2+=va2*va2;ei2+=vb2*vb2;}
+        var nc2=cc2/(Math.sqrt(eo2*ei2)+1e-12);
+        if(nc2>bc2){bc2=nc2;bo2=off;}
+      }
+      c0=inPos+bo2;
+    }else c0=0;
+    if(c0<0)c0=0;if(c0+N>=n)c0=n-N-1;if(c0<0)c0=0;
+    for(j=0;j<N;j++){y[outPos+j]+=x[c0+j]*win[j];w[outPos+j]+=win[j];}
+    inPos+=Ha;outPos+=Hs;
+  }
+  for(i=0;i<outN;i++){var wv=w[i];if(wv>1e-6)y[i]/=Math.max(wv,0.9);}
+  // обрез по хвосту окна Ханна: волна доходит до нуля сама, без обрыва
+  var endN=outPos+Hs;if(endN>outN)endN=outN;
+  if(endN<outN){var y2=mkBuf(endN),i2;for(i2=0;i2<endN;i2++)y2[i2]=y[i2];return y2;}
+  return y;
+}
 function renderSample(data,sr,dur,gain,ratio,fade){
   var n=Math.floor(dur*SR),b=mkBuf(n),step=ratio*(sr||SR)/SR,idx=0,i,used=0;
-  var maxIdx=data.length-2;
+  // сэмпл тянется до длительности события без смены тона (WSOLA, кэш на буфере)
+  var have=data.length-2,need=n*step,useData=data;
+  if(need>have*1.02||need<have*0.98){
+    var kk=need/have;
+    if(!data.__sk||Math.abs(data.__sk-kk)>1e-4){
+      useData=wsolaStretch(data,kk);
+      try{data.__sk=kk;data.__sbuf=useData;}catch(e){}
+    }else useData=data.__sbuf;
+  }
+  var maxIdx=useData.length-2;
   for(i=0;i<n;i++){
     if(idx>=maxIdx){used=i;break;}
     var i0=Math.floor(idx),fr=idx-i0;
-    b[i]=(data[i0]*(1-fr)+data[i0+1]*fr)*gain;
+    b[i]=(useData[i0]*(1-fr)+useData[i0+1]*fr)*gain;
     idx+=step;used=i+1;
   }
   if(fade&&used>0){var fl=Math.min(Math.floor(0.006*SR),used>>1),j;
@@ -508,12 +561,13 @@ function melVoice(freq,dur){
   return (state.melWave==="rhodes")?rhodesSynth(freq,dur):melody(freq,dur);
 }
 function drumKick(dur,duckEnv,click){
+  dur*=TS;
   if(fontEngineOn()&&drumKit&&drumKit[36])return renderSample(drumKit[36].data,drumKit[36].sr,dur,0.9,1,false);
   return kick(dur,duckEnv,click);
 }
 function drumSnare(level,send){
   if(fontEngineOn()&&drumKit&&drumKit[38]){
-    var b=renderSample(drumKit[38].data,drumKit[38].sr,0.42,0.9*level,1,true);
+    var b=renderSample(drumKit[38].data,drumKit[38].sr,0.42*TS,0.9*level,1,true);
     sendToReverb(b,send*0.5);
     return b;
   }
@@ -522,12 +576,12 @@ function drumSnare(level,send){
 function drumHat(open,level){
   if(fontEngineOn()&&drumKit){
     var note=open?46:42;
-    if(drumKit[note])return renderSample(drumKit[note].data,drumKit[note].sr,open?0.4:0.12,level*1.1,1,true);
+    if(drumKit[note])return renderSample(drumKit[note].data,drumKit[note].sr,(open?0.4:0.12)*TS,level*1.1,1,true);
   }
   return hat(open,level);
 }
 function drumCow(level){
-  if(fontEngineOn()&&drumKit&&drumKit[56])return renderSample(drumKit[56].data,drumKit[56].sr,0.32,level*1.15,1,true);
+  if(fontEngineOn()&&drumKit&&drumKit[56])return renderSample(drumKit[56].data,drumKit[56].sr,0.32*TS,level*1.15,1,true);
   return cowbell(level);
 }
 // ---- реверб (стерео, 4 comb + 2 allpass на канал) ----
@@ -1170,6 +1224,76 @@ var NOISE_URLS={
   vinyl:["https://upload.wikimedia.org/wikipedia/commons/d/d8/Plattenknistern_record.ogg"],
   rain:["https://upload.wikimedia.org/wikipedia/commons/8/8a/Sound_of_rain.ogg"]
 };
+function buildSeamlessVinyl(ch0,ch1,sr){
+  var nL=ch0.length,cf=Math.floor(0.05*sr),sm=new Float32Array(nL-cf),i;
+  for(i=0;i<sm.length;i++)sm[i]=(i<cf)?(ch0[i]*(i/cf)+ch1[nL-cf+i]*(1-i/cf)):(ch0[i]+ch1[i])*0.5;
+  var sum=0;for(i=0;i<sm.length;i++)sum+=sm[i]*sm[i];
+  var r=Math.sqrt(sum/sm.length);
+  if(r>0){var g=0.1/r;for(i=0;i<sm.length;i++)sm[i]*=g;}
+  return sm;
+}
+function buildSeamlessRain(ch0,ch1,sr){
+  var n=ch0.length,i,q;
+  var mix=new Float32Array(n);
+  for(i=0;i<n;i++)mix[i]=(ch0[i]+ch1[i])*0.5;
+  var sum=0;for(i=0;i<n;i++)sum+=mix[i]*mix[i];
+  var r0=Math.sqrt(sum/Math.max(1,n));
+  if(r0>0){var g0=0.1/r0;for(i=0;i<n;i++)mix[i]*=g0;}
+  var w=Math.max(64,Math.floor(0.1*sr)),nw=Math.floor(n/w);
+  if(nw<8)return mix;
+  var rms=new Float32Array(nw);
+  for(q=0;q<nw;q++){var s=0;for(i=q*w;i<(q+1)*w;i++)s+=mix[i]*mix[i];rms[q]=Math.sqrt(s/w);}
+  var srt=Array.prototype.slice.call(rms).sort(function(a,b){return a-b;});
+  var med=srt[Math.floor(nw/2)];
+  if(med<1e-7)return mix;
+  var end=nw-1,beg=0;
+  while(end>Math.floor(nw*0.5)&&rms[end]<0.6*med)end--;
+  while(beg<Math.floor(nw*0.5)&&rms[beg]<0.6*med)beg++;
+  var a=beg*w,b2=Math.min(n,(end+1)*w);
+  if(b2-a<sr*4){a=0;b2=n;}
+  var seg=new Float32Array(b2-a);
+  for(i=0;i<seg.length;i++)seg[i]=mix[a+i];
+  var L2=seg.length,bestS=0,out=null;
+  var tries=[Math.min(Math.floor(2*sr),Math.floor(L2*0.25)),Math.min(Math.floor(4*sr),Math.floor(L2*0.4))];
+  for(var tI=0;tI<tries.length&&!out;tI++){
+    var cf=tries[tI];
+    if(cf<256)break;
+    var srMax=Math.min(Math.floor(1.5*sr),L2-cf*2-64);
+    var cand=0;
+    if(srMax>0){
+      var step=Math.max(1,Math.floor(srMax/60)),bestE=1e18,bi=0,stride=Math.max(1,Math.floor(cf/8));
+      for(var s0=0;s0<=srMax;s0+=step){
+        var e=0,c2=0;
+        for(i=0;i<cf;i+=stride){var d1=seg[L2-cf+i]-seg[s0+i];e+=d1*d1;c2++;}
+        e/=Math.max(1,c2);
+        if(e<bestE){bestE=e;bi=s0;}
+      }
+      var lo=Math.max(0,bi-step),hi=Math.min(srMax,bi+step),bE2=bestE,bs2=bi,str2=Math.max(1,Math.floor(cf/32));
+      for(var s1=lo;s1<=hi;s1++){
+        var e2=0,c3=0;
+        for(i=0;i<cf;i+=str2){var d2=seg[L2-cf+i]-seg[s1+i];e2+=d2*d2;c3++;}
+        e2/=Math.max(1,c3);
+        if(e2<bE2){bE2=e2;bs2=s1;}
+      }
+      cand=bs2;
+    }
+    var N=L2-cand,outN=new Float32Array(N),off=N-cf;
+    for(i=0;i<off;i++)outN[i]=seg[cand+i];
+    for(i=0;i<cf;i++){var tt=i/cf;outN[off+i]=seg[L2-cf+i]*(1-tt)+seg[cand+i]*tt;}
+    var wq=Math.max(64,Math.floor(0.2*sr)),qn=Math.floor(cf*2/wq),bad=0,mid=0,cnt=0;
+    for(q=0;q<Math.floor(nw/2);q++){var s3=0;for(i=q*w;i<(q+1)*w;i++)s3+=seg[cand+i]*seg[cand+i];mid+=Math.sqrt(s3/w);cnt++;}
+    mid/=Math.max(1,cnt);
+    for(q=0;q<qn;q++){
+      var st2=off-Math.floor(cf/2)+q*wq;if(st2<0)continue;
+      var s4=0,c4=0;
+      for(i=st2;i<Math.min(N,st2+wq);i++){s4+=outN[i]*outN[i];c4++;}
+      if(c4>0&&Math.sqrt(s4/c4)<0.7*mid)bad++;
+    }
+    if(bad===0)out=outN;
+  }
+  if(!out)out=seg;
+  return out;
+}
 function loadNoiseLoops(){
   Object.keys(NOISE_URLS).forEach(function(k){
     var url=NOISE_URLS[k][0];
@@ -1179,15 +1303,7 @@ function loadNoiseLoops(){
         var c=ensureCtx();
         return c.decodeAudioData(ab).then(function(dec){
           var ch0=dec.getChannelData(0),ch1=(dec.numberOfChannels>1)?dec.getChannelData(1):ch0;
-          var nL=ch0.length,cf=Math.floor(0.05*dec.sampleRate);
-          var sm=new Float32Array(nL-cf),i;
-          for(i=0;i<sm.length;i++){
-            sm[i]=(i<cf)?(ch0[i]*(i/cf)+ch1[nL-cf+i]*(1-i/cf)):(ch0[i]+ch1[i])*0.5;
-          }
-          var sum=0;for(i=0;i<sm.length;i++)sum+=sm[i]*sm[i];
-          var r=Math.sqrt(sum/sm.length);
-          if(r>0){var g=0.1/r;for(i=0;i<sm.length;i++)sm[i]*=g;}
-          noiseLoops[k]=sm;
+          noiseLoops[k]=(k==="rain")?buildSeamlessRain(ch0,ch1,dec.sampleRate):buildSeamlessVinyl(ch0,ch1,dec.sampleRate);
         });
       }).catch(function(){});
   });
@@ -1395,7 +1511,7 @@ $("midiFile").addEventListener("drop",function(e){
 // ---- плеер и радио-конвейер ----
 var masterGain=null;
 function ensureCtx(){if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();if(!masterGain){masterGain=ctx.createGain();masterGain.gain.value=1;masterGain.connect(ctx.destination);}return ctx;}
-function infoText(){return info_.totalBars+" тактов · "+state.bpm+" БПМ · "+MODE_NAMES[state.mode];}
+function infoText(){var rr=state.bpm*((state.keepPitch&&(state.rate||100)!==100)?(state.rate/100):1);return info_.totalBars+" тактов · "+Math.round(rr)+" БПМ · "+MODE_NAMES[state.mode];}
 var radio={on:false,next:null,nextInfo:null,genBusy:false,gapTimer:null,tick:null,trackNo:0};
 function playTrack(buf,info){
   var c=ensureCtx();c.resume();
@@ -1566,72 +1682,20 @@ function resamplePitch(L,R,r){ // честный питч: длина /r, выс
     oL[i]=L[i0]*(1-f)+(L[i0+1]||0)*f;oR[i]=R[i0]*(1-f)+(R[i0+1]||0)*f;}
   return [oL,oR];
 }
-function stretchKeep(L,R,r){
-  // WSOLA: окно 50 мс, синтез-гоп = половина окна, поиск совпадения фазы ±35% гопа.
-  // Нормализованная кросс-корреляция (грубый проход + точная доводка),
-  // снап на транзиенты (удары не расползаются), OLA с окном Ханна и нормировкой перекрытия.
-  var n=L.length;
-  var N=Math.floor(SR*0.05),Hs=Math.floor(N/2),Ha=Math.max(1,Math.round(Hs*r));
-  var maxS=Math.floor(Ha*0.35);
-  var outN=Math.floor(n/r)+2*N;
-  var oL=mkBuf(outN),oR=mkBuf(outN),wS=mkBuf(outN);
-  var i,j,win=[];for(j=0;j<N;j++)win.push(0.5-0.5*Math.cos(TAU*j/N));
-  var on=mkBuf(n),fe=0,se=0; // карта транзиентов: быстрый EMA против медленного
-  for(i=0;i<n;i++){var x=L[i];fe=fe*0.98+x*x*0.02;se=se*0.999+x*x*0.001;on[i]=(fe>se*6&&fe>1e-7)?1:0;}
-  var corrN=N-Hs,stride=Math.max(1,Math.round(corrN/8));
-  var ta=0,ts=0,d=0;
-  if(n<=corrN+4)return [L,R];
-  while(ts+N<outN-1&&ta<n-N-1){
-    var c0=ta+d;
-    if(ts>0){
-      var rs=ts-Hs,bc=-1e9,bo=0,off;
-      for(off=-maxS;off<=maxS;off++){ // грубый поиск с шагом corrN/8
-        var q=c0+off;if(q<0||q+corrN>=n)continue;
-        var cc=0,eo=0,ei=0;
-        for(j=0;j<corrN;j+=stride){var vo=oL[rs+j],vi=L[q+j];cc+=vo*vi;eo+=vo*vo;ei+=vi*vi;}
-        var nc=cc/(Math.sqrt(eo*ei)+1e-12);
-        if(nc>bc){bc=nc;bo=off;}
-      }
-      d+=bo;if(d>2*maxS)d=2*maxS;if(d<-2*maxS)d=-2*maxS;
-      c0=ta+d;
-      var bc2=bc-1e-9,bo2=0; // точная доводка: всё окно грубого поиска по сэмплам
-      for(off=Math.max(-stride,bo-stride);off<=Math.min(maxS,bo+stride);off++){
-        var q2=c0+off;if(q2<0||q2+corrN>=n)continue;
-        var cc2=0,eo2=0,ei2=0;
-        for(j=0;j<corrN;j++){var v2=oL[rs+j],u2=L[q2+j];cc2+=v2*u2;eo2+=v2*v2;ei2+=u2*u2;}
-        var nc2=cc2/(Math.sqrt(eo2*ei2)+1e-12)-0.003*Math.abs(off)/maxS; // регуляризация к нулю: не даёт тону плыть
-        if(nc2>bc2){bc2=nc2;bo2=off;}
-      }
-      d+=bo2;c0=ta+d;
-    }
-    if(c0<0)c0=0;if(c0+N>=n)c0=n-N-1;if(c0<0)c0=0;
-    var snp=Math.floor(maxS/2); // снап на транзиент рядом
-    for(var k=-snp;k<=snp;k++){var qq=c0+k;if(qq>=0&&qq<n&&on[qq]){c0=qq;break;}}
-    d=c0-ta;
-    for(j=0;j<N;j++){
-      if(ts+j>=outN)break;
-      var g=win[j];
-      oL[ts+j]+=L[c0+j]*g;oR[ts+j]+=R[c0+j]*g;wS[ts+j]+=g;
-    }
-    ta+=Ha;ts+=Hs;
-  }
-  // нормировка перекрытия: в устойчивых местах сумма окон Ханна = 1 точно,
-  // делим только там, где покрытие выпало (обрыв входа) — щелчков нет
-  for(i=0;i<outN;i++){var wv=wS[i];if(wv>0.9){oL[i]/=wv;oR[i]/=wv;}}
-  return [oL,oR];
-}
-
 function renderTrack(cb){
   readUI();
   try{ensureCtx();}catch(e){}
   try{loadNoiseLoops();}catch(e){}
   loadNeeds().then(function(){
-    lcd("РЕНДЕР...","сборка аранжировки · "+state.bpm+" БПМ");
+    var r=(state.rate||100)/100, doKeep=state.keepPitch&&Math.abs(r-1)>0.005;
+    var effBpm=Math.round(state.bpm*(doKeep?r:1));
+    TS=doKeep?(1/r):1;
+    lcd("РЕНДЕР...","сборка аранжировки · "+effBpm+" БПМ"+(doKeep?" · тональность на месте":""));
     setTimeout(function(){
       try{
         initReverb(SR);
-        var res=buildArrangement(state.mode,state.bpm,state.cowbell,state.snare);
-        if(window.__melDry)mixMelody(res.track,res.duck,window.__melDry,1,state,state.bpm);
+        var res=buildArrangement(state.mode,effBpm,state.cowbell,state.snare);
+        if(window.__melDry)mixMelody(res.track,res.duck,window.__melDry,1,state,effBpm);
         reverbDecay(res.track,Math.floor(SR*2.2));
         var out=masterChain(res.track.L,res.track.R);
         if(state.lofi){
@@ -1683,10 +1747,9 @@ function renderTrack(cb){
         var fsIn=Math.floor(SR*0.02),feOut=Math.min(Math.floor(SR*0.3),out[0].length>>1),z;
         for(z=0;z<fsIn;z++){out[0][z]*=z/fsIn;out[1][z]*=z/fsIn;}
         for(z=0;z<feOut;z++){var ke=out[0].length-1-z,fk=z/feOut;out[0][ke]*=fk;out[1][ke]*=fk;}
-        var r=(state.rate||100)/100;
-        if(Math.abs(r-1)>0.005){
-          lcd("СКОРОСТЬ x"+r.toFixed(2),state.keepPitch?"меняю темп · тональность на месте":"меняю темп и тональность");
-          out=(state.keepPitch)?stretchKeep(out[0],out[1],r):resamplePitch(out[0],out[1],r);
+        if(!doKeep&&Math.abs(r-1)>0.005){
+          lcd("СКОРОСТЬ x"+r.toFixed(2),"меняю темп и тональность — как плёнка");
+          out=resamplePitch(out[0],out[1],r);
         }
         var buf=c.createBuffer(2,out[0].length,SR);
         buf.copyToChannel(out[0],0);buf.copyToChannel(out[1],1);
@@ -1698,7 +1761,7 @@ function renderTrack(cb){
 }
 $("bSet").onclick=function(){$("settings").classList.toggle("hidden");};
 ["tRBpm","tRIntro","tRNote","tKeep"].forEach(function(id){
-  $(id).onclick=function(){$(id).classList.toggle("on");};
+  $(id).onclick=function(){$(id).classList.toggle("on");if(id==="tKeep")markDirty();};
 });
 readUI();
 lcd("HYDRA РАДИО","настрой радио — и жми ИГРАТЬ");
