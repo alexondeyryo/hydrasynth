@@ -1,0 +1,1707 @@
+<!DOCTYPE HTML>
+<!-- привет я ломаю разметку теперь ещё и текстом -->
+<!-- ЫЫЫЫ СИКС СЕВЕН 67 -->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HYDRA RADIO v6.45</title>
+<style>
+:root{--bg:#0a0c10;--pan:#161b22;--pan2:#1d242e;--acc:#ff5a1f;--acc2:#ffb340;--txt:#dfe6ee;--dim:#77828f;--lcd:#0c1a12;--lcdtx:#4dff88;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:radial-gradient(ellipse at 50% -10%,#1a2230 0%,var(--bg) 60%);color:var(--txt);font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;display:flex;justify-content:center;padding:8px;}
+.wrap{width:100%;max-width:520px;}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.logo{width:40px;height:40px;background:conic-gradient(from 210deg,var(--acc),#8a2be2,var(--acc));clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);}
+.brand h1{font-size:19px;letter-spacing:2px;} .brand h1 b{color:var(--acc);}
+.brand .ver{font-size:11px;color:var(--dim);}
+.panel{background:linear-gradient(180deg,var(--pan2),var(--pan));border:1px solid #2a3442;border-radius:12px;padding:10px;margin-bottom:8px;box-shadow:0 6px 24px rgba(0,0,0,.5);}
+.panel h2{font-size:11px;letter-spacing:2px;color:var(--dim);margin-bottom:10px;text-transform:uppercase;}
+.row{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{flex:1;min-width:100px;padding:11px 8px;border:1px solid #33404f;border-radius:9px;background:#202a36;color:var(--txt);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:.15s;text-align:center;user-select:none;}
+.btn:active{transform:translateY(1px);}
+.btn.on{background:linear-gradient(180deg,#ff7a3c,var(--acc));border-color:#ff8a50;color:#14060a;box-shadow:0 0 14px rgba(255,90,31,.45);}
+.btn.pr.on{background:linear-gradient(180deg,#4d8dff,#2f66d8);border-color:#5d97ff;box-shadow:0 0 12px rgba(80,130,255,.4);}
+.btn.big{padding:14px;font-size:14px;}
+.btn.gen{background:linear-gradient(180deg,#39d16a,#1f9e4c);border-color:#4de08a;color:#06180c;box-shadow:0 0 16px rgba(60,220,110,.4);}
+.btn.act{background:#2a3542;}
+.btn:disabled{opacity:.4;cursor:default;}
+.hidden{display:none;}
+.knob{margin-bottom:8px;}
+.knob .lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:4px;letter-spacing:1px;}
+.knob .val{color:var(--acc2);font-weight:700;}
+input[type=range]{width:100%;height:26px;-webkit-appearance:none;background:transparent;}
+input[type=range]::-webkit-slider-runnable-track{height:6px;background:#0d1319;border-radius:3px;border:1px solid #2a3442;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffb26b,var(--acc));border:2px solid #10151c;margin-top:-8px;box-shadow:0 0 8px rgba(255,90,31,.5);}
+.tglrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.tgl{flex:1;min-width:105px;padding:9px 6px;border-radius:8px;border:1px solid #33404f;background:#1a222c;color:var(--dim);font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;text-align:center;user-select:none;transition:.15s;}
+.tgl.on{color:#0d1a0d;background:linear-gradient(180deg,#57e08a,#2aa85c);border-color:#63e897;box-shadow:0 0 10px rgba(70,220,120,.35);}
+.tgl.off{opacity:.45;cursor:default;}
+.lcd{background:var(--lcd);border:1px solid #1e3a28;border-radius:8px;padding:10px 12px;font-family:'Consolas','Courier New',monospace;color:var(--lcdtx);font-size:12px;min-height:40px;line-height:1.5;text-shadow:0 0 6px rgba(60,255,130,.5);margin-bottom:12px;}
+.lcd .dim{color:#2f8a52;text-shadow:none;}
+.hint{font-size:11px;color:var(--dim);line-height:1.55;background:#131922;border:1px dashed #33404f;border-radius:8px;padding:9px 11px;margin-top:8px;}
+.hint b{color:var(--acc2);}
+.midibar{display:flex;gap:8px;align-items:center;margin-top:8px;}
+.midibar .btn{flex:0 0 auto;padding:9px 12px;}
+.midiname{font-size:11px;color:var(--lcdtx);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#midiFile{display:none;}
+footer{font-size:10px;color:#4a5560;text-align:center;margin-top:6px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><div class="logo"></div><div><h1>HYDRA <b>BASS SYNTH</b></h1><div class="ver">v6.45 · ОНЛАЙН-РАДИО · треки сменяются сами · MIDI-луп</div></div></div>
+
+  <div id="settings" class="hidden">
+  <div class="panel">
+    <h2>Режим</h2>
+    <div class="row">
+      <div class="btn mode on" id="mTrap">Классика</div>
+      <div class="btn mode" id="mFunk">Фанк</div>
+      <div class="btn mode" id="mHard">Энергичность</div>
+      <div class="btn mode" id="mZud">Классика2</div>
+      <div class="btn mode" id="mLoFi">LO-FI</div>
+    </div>
+    <div class="hint" id="modeHint">Классика: разрывной кик, рваный бас-рулет, снейр на 2 и 4. Фанк: бразильская сетка кика, <b>ковбелл включается сам</b> (тумблер уходит в авто), свинг на хэтах.</div>
+  </div>
+
+  <div class="panel">
+    <h2>Пресеты</h2>
+    <div class="row">
+      <div class="btn pr" id="pDark">ТЁМНО</div>
+      <div class="btn pr on" id="pMid">СРЕДНЕ</div>
+      <div class="btn pr" id="pHard">ЖЁСТКО</div>
+      <div class="btn pr" id="pClean">МАКС. ЧИСТО</div><div class="btn pr" id="pShaman">ШАМАН 🎲</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Движок</h2>
+    <div class="row"><div class="btn pr on" id="wSaw">ПИЛА (ДЕТЮН)</div><div class="btn pr" id="wSynth">ПИАНИНО (SYNTH)</div><div class="btn pr" id="wFont">ПИАНИНО (MIDIFONT)</div><div class="btn pr" id="wRhodes">ПИАНИНО (LO-FI)</div></div>
+    <div class="row" style="margin-top:6px;"><div class="btn pr on" id="b808">808</div><div class="btn pr" id="b909">909</div><div class="btn pr" id="bRock">ROCK</div><div class="btn pr" id="bJazz">JAZZ</div><div class="btn pr" id="bAcou">ACOUSTIC</div></div>
+    <div class="hint" style="margin:6px 0 0;">808/909 — синтез. ROCK/JAZZ/ACOUSTIC — реальные сэмплы FluidR3 из сети, меняется не только бас: кик, снейр, хэты и перкуссия тоже становятся реальными. ПИАНИНО (MIDIFONT) — рояль FluidR3. Нет сети — честный синтез-фолбэк.</div>
+    <div class="knob"><div class="lbl"><span>БПМ</span><span class="val" id="vBpm">132</span></div><input type="range" id="kBpm" min="100" max="200" value="132"></div>
+    <div class="knob"><div class="lbl"><span>СКОРОСТЬ</span><span class="val" id="vRate">x1.00 · 132 БПМ</span></div><input type="range" id="kRate" min="50" max="150" step="5" value="100"></div>
+    <div class="tglrow"><div class="tgl" id="tKeep">НЕ ТРОГАТЬ ТОНАЛЬНОСТЬ</div></div>
+    <div class="knob"><div class="lbl"><span>РВАНОСТЬ БАСА</span><span class="val" id="vGate">120 Гц</span></div><input type="range" id="kGate" min="60" max="260" value="120"></div>
+    <div class="knob"><div class="lbl"><span>DUTY</span><span class="val" id="vDuty">50%</span></div><input type="range" id="kDuty" min="10" max="90" value="50"></div>
+    <div class="knob"><div class="lbl"><span>ГЛУБИНА КЛИПА РВАНОСТИ</span><span class="val" id="vClip">60%</span></div><input type="range" id="kClip" min="0" max="95" value="60"></div>
+    <div class="knob"><div class="lbl"><span>ПЕРЕГРУЗ БАСА</span><span class="val" id="vDrive">0</span></div><input type="range" id="kDrive" min="0" max="20" step="1" value="0"></div>
+    <div class="knob"><div class="lbl"><span>ДАККИНГ</span><span class="val" id="vDuck">60%</span></div><input type="range" id="kDuck" min="0" max="100" value="60"></div>
+    <div class="knob"><div class="lbl"><span>БИТНОСТЬ МЕЛОДИИ</span><span class="val" id="vBits">11 бит</span></div><input type="range" id="kBits" min="4" max="16" value="11"></div>
+    <div class="knob"><div class="lbl"><span>ДАУНСЭМПЛ</span><span class="val" id="vDs">x2</span></div><input type="range" id="kDs" min="1" max="8" value="2"></div>
+    <div class="knob"><div class="lbl"><span>ПЕРЕГРУЗ МЕЛОДИИ</span><span class="val" id="vMdrv">5</span></div><input type="range" id="kMdrv" min="0" max="12" step="1" value="5"></div>
+    <div class="knob"><div class="lbl"><span>НОТА</span><span class="val" id="vNote">A</span></div><input type="range" id="kNote" min="0" max="11" step="1" value="9"></div>
+    <div class="knob"><div class="lbl"><span>КЛИП МАСТЕРА</span><span class="val" id="vClipM">5.0 дБ</span></div><input type="range" id="kClipM" min="0" max="10" step="0.1" value="5"></div>
+    <div class="panel" id="lofiPanel" style="display:none;">
+    <h2>LO-FI ШУМЫ И СМАЗ</h2>
+    <div class="knob"><div class="lbl"><span>ВИНИЛОВЫЙ ШУМ</span><span class="val" id="vVinyl">выкл</span></div><input type="range" id="kVinyl" min="-60" max="-18" step="1" value="-60"></div>
+    <div class="knob"><div class="lbl"><span>ШУМ ДОЖДЯ</span><span class="val" id="vRain">выкл</span></div><input type="range" id="kRain" min="-60" max="-18" step="1" value="-60"></div>
+    <div class="knob"><div class="lbl"><span>СМАЗ ВЕРХОВ</span><span class="val" id="vSmear">12.0 кГц</span></div><input type="range" id="kSmear" min="2" max="12" step="0.5" value="12"></div>
+    <div class="hint">Винил и дождь — реальные лупы (Wikimedia Commons), без сети — реалистичный синтез. Вместе шумят так, что суммарная громкость — как у одного шума на полную. Смаз — крутой трёхполюсный фильтр, совсем высокие срезаются на 11 кГц.</div>
+    </div>
+    <div class="tglrow">
+      <div class="tgl on" id="tGrit">РВАНЫЙ БАС</div>
+      <div class="tgl" id="tClick">КЛИК КИКА</div>
+      <div class="tgl on" id="tSnare">СНЕЙР</div>
+      <div class="tgl on" id="tCow">BR КОВБЕЛЛ</div>
+    </div>
+    <div class="hint">Рваный бас не включается-выключается: слой <b>пережимается клиппером</b>, порог которого дышит с частотой «РВАНОСТЬ» и шириной DUTY. Сигнал непрерывен, щелчков нет — рваность живёт в форме волны.</div>
+  </div>
+
+  <div class="panel">
+    <h2>Мелодия из MIDI (опционально)</h2>
+    <div class="midibar">
+      <label class="btn" for="midiFile">ЗАГРУЗИТЬ MIDI</label>
+      <input type="file" id="midiFile">
+      <div class="midiname" id="midiName">— свой паттерн не загружен —</div>
+    </div>
+    <div class="tglrow" style="margin-top:8px;"><div class="tgl on" id="tMidiIntro">МИДИ ПОСЛЕ ИНТРО</div><div class="tgl" id="tNoIntro">БЕЗ ИНТРО</div></div>
+    <div class="hint"><b>Важно:</b> загружай ровно <b>один паттерн мелодии</b> (1–8 тактов), а не целую песню. Генератор возьмёт первый активный канал, выровняет старт на ноль, подстроит частоты под ля-минор и будет лупить паттерн по всему треку.</div>
+  </div>
+  </div>
+
+  <div class="lcd" id="lcd">HYDRA РАДИО<span class="dim"><br>нажми ИГРАТЬ — эфир играет бесконечно</span></div>
+
+  <div class="panel">
+    <div class="row" style="margin-bottom:8px;">
+      <div class="btn big gen" id="bPlay">▶ ИГРАТЬ</div>
+      <div class="btn act" id="bStop" style="flex:0 0 88px;">СТОП</div>
+    </div>
+    <div class="tglrow" style="margin-top:0;">
+      <div class="tgl on" id="tRBpm">СЛУЧ. БПМ</div>
+      <div class="tgl on" id="tRIntro">ИНТРО СЛУЧ.</div>
+      <div class="tgl on" id="tRNote">СЛУЧ. НОТА</div>
+    </div>
+  </div>
+  <div class="row" style="margin-bottom:8px;">
+    <div class="btn act" id="bSet">⚙ НАСТРОЙКИ</div>
+    <div class="btn act" id="bMp3">СОХРАНИТЬ MP3</div>
+  </div>
+
+  <div class="hint">Мелодия собрана из повторяющихся мотивов в аккордах Am–F–C–G (или из твоего MIDI, зацикленного по треку). Перегруз баса срезает верхушки — в эти моменты даккинг глушит мелодию, поэтому на телефонах бас читается чётко. Саб-слой 808 идёт ниже 110 Гц без рваности. Архитектура трека каждый раз собирается заново — секции и их длина слегка варьируются.</div>
+
+  <footer>HYDRA RADIO v6.45 · жми ИГРАТЬ один раз — эфир играет бесконечно · MP3 требуется сеть</footer>
+</div>
+<script>
+
+"use strict";
+var SR=44100, TAU=Math.PI*2;
+function mkBuf(n){var a=new Float32Array(n);return a;}
+function rnd(a,b){return a+Math.random()*(b-a);}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function clamp(v,a,b){return v<a?a:(v>b?b:v);}
+function noteHz(m){return 440*Math.pow(2,(m-69)/12);}
+
+// человекочитаемые названия режимов для экрана
+var MODE_NAMES={trap:"Классика",funk:"Фанк",hard:"Энергичность",zud:"Классика2",lofi:"LO-FI"};
+
+// ---- 4x пересемплированная сатурация: без алиасинга ----
+function sat4x(buf, drive){
+  if(drive<=0.01) return buf;
+  var n=buf.length, out=mkBuf(n), k=4, g=1+drive*0.45;
+  for(var i=0;i<n;i++){
+    var acc=0;
+    for(var s=0;s<k;s++){
+      var t=(s+0.5)/k, prev=buf[i-1]||0, next=buf[Math.min(i+1,n-1)]||0;
+      var x=prev*(1-t)+next*t; // простая 4-фазная интерполяция
+      acc+=Math.tanh(x*g)/g;
+    }
+    out[i]=acc/k;
+  }
+  return out;
+}
+function hardclipVar(buf, amt, rate, duty, sr){
+  // рваность через переменный клиппинг: порог дышит между глубоким и мягким,
+  // сигнал НИКОГДА не обнуляется -> нет щелчков и разрывов фазы
+  var n=buf.length, out=mkBuf(n), per=sr/rate, ph=0;
+  for(var i=0;i<n;i++){
+    ph+=1/per; if(ph>=1)ph-=1;
+    var g=(ph<duty)?1:0;
+    var deep=amt*0.12;               // глубокий клип (волна почти квадратная)
+    var soft=0.25+amt*0.75;          // мягкий клип (почти исходник)
+    var thr=deep+(soft-deep)*g;
+    out[i]=clamp(buf[i],-thr,thr)/thr*0.9;
+  }
+  return out;
+}
+function bitcrush(buf,bits,dsf){
+  var n=buf.length,out=mkBuf(n),lv=Math.pow(2,bits-1),ph=0,last=0,i,kk;
+  var dith=(bits<16)?1:0;
+  for(i=0;i<n;i++){
+    ph+=1;
+    if(ph>=dsf){
+      ph=0;
+      var acc=0;for(kk=0;kk<dsf;kk++)acc+=(buf[i-kk]||0);acc/=dsf; // усреднение окна: алиасинг на транзиентах гасится
+      var x=acc+(dith?((Math.random()+Math.random()-1)*0.5/lv):0); // TPDF-дизер перед округлением
+      last=Math.round(x*lv)/lv;
+    }
+    out[i]=last;
+  }
+  return out;
+}
+function onepoleLP(buf,fc,sr){var a=Math.exp(-TAU*fc/sr),out=mkBuf(buf.length),z=0;
+  for(var i=0;i<buf.length;i++){z=a*z+(1-a)*buf[i];out[i]=z;}return out;}
+function onepoleHP(buf,fc,sr){var lp=onepoleLP(buf,fc,sr),out=mkBuf(buf.length);
+  for(var i=0;i<buf.length;i++)out[i]=buf[i]-lp[i];return out;}
+
+// ---- инструменты ----
+function kick(dur,duckEnv,click){
+  var n=Math.floor(dur*SR),b=mkBuf(n),f0=150,f1=38,ph=0;
+  for(var i=0;i<n;i++){
+    var t=i/SR, e=Math.exp(-t*11);
+    var f=f1+(f0-f1)*Math.exp(-t*38);
+    ph+=f/SR; var s=Math.sin(TAU*ph)*e;
+    s+=Math.sin(TAU*2*ph)*e*0.28;             // вторая гармоника, тело кика
+    s+=Math.sin(TAU*4.5*ph)*Math.exp(-t*90)*0.12;
+    b[i]=s;
+  }
+  if(click){var cn=Math.floor(0.006*SR);for(var j=0;j<cn&&j<n;j++){b[j]+=(Math.random()*2-1)*Math.exp(-j/(cn*0.3))*0.7;}}
+  b=onepoleHP(b,26,SR);
+  return b;
+}
+function snareHit(level,send){
+  var n=Math.floor(0.42*SR),b=mkBuf(n),i,t;
+  // тело: два нисходящих синуса
+  for(i=0;i<n;i++){t=i/SR;
+    var e1=Math.exp(-t*26),e2=Math.exp(-t*38);
+    var f1=183*(1-0.11*Math.min(1,t*14)),f2=335*(1-0.08*Math.min(1,t*14));
+    b[i]=(Math.sin(TAU*f1*t)*e1*0.5+Math.sin(TAU*f2*t)*e2*0.4)*level;
+  }
+  // треск
+  var cn=Math.floor(0.012*SR);
+  for(i=0;i<cn;i++){b[i]+=(Math.random()*2-1)*Math.exp(-i/(cn*0.25))*0.9*level;}
+  // звон пружины ~1.9 кГц: шум через связку HP+LP
+  var nn=Math.floor(0.16*SR),no=mkBuf(nn);
+  for(i=0;i<nn;i++)no[i]=(Math.random()*2-1);
+  no=onepoleHP(no,1200,SR); no=onepoleLP(no,3600,SR);
+  for(i=0;i<nn;i++){t=i/SR;b[i]+=no[i]*Math.exp(-t*22)*0.8*level;}
+  // воздушность
+  var an=Math.floor(0.09*SR),ao=mkBuf(an);
+  for(i=0;i<an;i++)ao[i]=(Math.random()*2-1);
+  ao=onepoleHP(ao,5200,SR);
+  for(i=0;i<an;i++){t=i/SR;b[i]+=ao[i]*Math.exp(-t*34)*0.35*level;}
+  b=sat4x(b,1.4);
+  sendToReverb(b,send*0.5);
+  return b;
+}
+function hat(open,level){
+  var dur=open?0.14:0.035,n=Math.floor(dur*SR),b=mkBuf(n),i;
+  for(i=0;i<n;i++)b[i]=(Math.random()*2-1);
+  b=onepoleHP(b,7000,SR);
+  var k=open?26:70;
+  for(i=0;i<n;i++)b[i]*=Math.exp(-i/SR*k)*level;
+  return b;
+}
+function cowbell(level){
+  var n=Math.floor(0.32*SR),b=mkBuf(n),i;
+  for(i=0;i<n;i++){var t=i/SR,e=Math.exp(-t*16);
+    b[i]=(Math.sin(TAU*540*t)*0.5+Math.sin(TAU*800*t)*0.5)*Math.sign(Math.sin(TAU*540*t)+0.4)*e*level;}
+  b=onepoleHP(b,600,SR);
+  sendToReverb(b,0.15);
+  return b;
+}
+function bass808(freq,dur,drive,slideTo){
+  // саб: чистый синус с глиссандо, без гейта
+  var n=Math.floor(dur*SR),sub=mkBuf(n),harm=mkBuf(n),ph=0,i;
+  for(i=0;i<n;i++){var t=i/SR;
+    var f=freq+(freq*1.6-freq)*Math.exp(-t*38);
+    if(slideTo){var pl=Math.min(1,Math.max(0,(t-dur*0.55)/(dur*0.45)));f=f*(1-pl)+slideTo*pl;}
+    ph+=f/SR; sub[i]=Math.sin(TAU*ph)*Math.exp(-t*1.7);
+    harm[i]=Math.sin(TAU*2*ph)*0.5+Math.sin(TAU*3*ph)*0.3;
+  }
+  harm=sat4x(harm,1+drive*0.8);
+  harm=onepoleLP(harm,1100,SR);
+  var out=mkBuf(n);
+  var hm=clamp(drive/20*0.5,0.08,0.5);
+  for(i=0;i<n;i++)out[i]=sub[i]+harm[i]*hm;
+  return out;
+}
+function normPeak(b,p){var m=0,i;for(i=0;i<b.length;i++){var a=Math.abs(b[i]);if(a>m)m=a;}if(m>0){var k=p/m;for(i=0;i<b.length;i++)b[i]*=k;}return b;}
+function grit(freq,dur,drive,rate,duty,clipAmt){
+  // источник: пара расстроенных пил, затем клиппер с переменным порогом, затем сатурация
+  var n=Math.floor(dur*SR),b=mkBuf(n),ph1=0,ph2=0,i;
+  var f2=freq*2.02;
+  for(i=0;i<n;i++){
+    ph1=(ph1+freq/SR)%1; ph2=(ph2+f2/SR)%1;
+    var saw=2*ph1-1, saw2=2*ph2-1;
+    b[i]=(saw*0.6+saw2*0.4+ (Math.random()*2-1)*0.12)*Math.exp(-i/SR*2.4)*Math.min(1,i/(0.002*SR)); // атака 2 мс
+  }
+  if(clipAmt>0.02) b=hardclipVar(b,clipAmt,rate,duty,SR);
+  b=sat4x(b,1+drive*0.35);
+  b=onepoleLP(b,1200,SR);
+  return b;
+}
+
+// ---- реальные саундфонт-сэмплы с CDN (gleitz FluidR3_GM + GM-перкуссия) ----
+var FONT_BASE="https://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/";
+var FONT_MIRRORS=["https://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/","https://cdn.jsdelivr.net/gh/gleitz/midi-js-soundfonts@gh-pages/FluidR3_GM/","https://gcore.jsdelivr.net/gh/gleitz/midi-js-soundfonts@gh-pages/FluidR3_GM/"];
+var DRUM_BASES=["https://cdn.jsdelivr.net/gh/dev-clemons/midi-js-soundfont-drums@main/samples/",
+  "https://raw.githubusercontent.com/dev-clemons/midi-js-soundfont-drums/main/samples/",
+  "https://dev-clemons.github.io/midi-js-soundfont-drums/samples/"];
+function fetchT(u,ms){ms=ms||10000;return Promise.race([fetch(u),new Promise(function(_,rej){setTimeout(rej,ms);})]);}
+var FONT_INSTR={piano:"acoustic_grand_piano",rhodes:"electric_piano_1",rock:"electric_bass_pick",jazz:"acoustic_bass",acoustic:"electric_bass_finger"};
+var fontCache={},drumKit=null,drumStatus="";
+var PIANO_RANGE=[],BASS_RANGE=[];
+(function(){var m;for(m=45;m<=76;m++)PIANO_RANGE.push(m);for(m=33;m<=52;m++)BASS_RANGE.push(m);})();
+function loadSoundfont(name){
+  if(fontCache[name])return Promise.resolve(fontCache[name]);
+  if(state.sfontStatus[name]==="loading")return null;
+  state.sfontStatus[name]="loading";
+  // подгрузка через script-тег: CORS не нужен, работает даже с локального файла
+  return new Promise(function(res){
+    var mi=0;
+    function tryNext(){
+      if(mi>=FONT_MIRRORS.length){state.sfontStatus[name]="fail";return res(null);}
+      var base=FONT_MIRRORS[mi++],s=document.createElement("script"),done=false;
+      function cleanup(){try{s.parentNode.removeChild(s);}catch(e){}}
+      var to=setTimeout(function(){if(done)return;done=true;cleanup();tryNext();},10000);
+      s.src=base+name+"-mp3.js";
+      s.onerror=function(){if(done)return;done=true;clearTimeout(to);cleanup();tryNext();};
+      s.onload=function(){
+        if(done)return;done=true;clearTimeout(to);
+        try{
+          var sf=window.MIDI&&MIDI.Soundfont&&MIDI.Soundfont[name];
+          cleanup();
+          if(sf){fontCache[name]=sf.keys||sf;state.sfontStatus[name]="ok";return res(fontCache[name]);}
+        }catch(e){}
+        tryNext();
+      };
+      document.head.appendChild(s);
+    }
+    tryNext();
+  });
+}
+function noteName(mn){var N=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];return N[mn%12]+(Math.floor(mn/12)-1);}
+function decodeFontNote(uri){
+  return new Promise(function(res,rej){
+    try{
+      var b64=uri.split(",")[1],bin=atob(b64),buf=new Uint8Array(bin.length),i;
+      for(i=0;i<bin.length;i++)buf[i]=bin.charCodeAt(i);
+      if(!(ctx&&ctx.decodeAudioData)){rej(0);return;}
+      ctx.decodeAudioData(buf.buffer,function(ab){
+        var L=ab.getChannelData(0),R=ab.numberOfChannels>1?ab.getChannelData(1):null,out=new Float32Array(ab.length),i;
+        for(i=0;i<ab.length;i++)out[i]=R?(L[i]+R[i])*0.5:L[i];
+        res({data:out,sr:ab.sampleRate});
+      },rej);
+    }catch(e){rej(e);}
+  });
+}
+function ensureSamples(instr,notes){
+  var f=fontCache[FONT_INSTR[instr]];
+  if(!f)return Promise.resolve(false);
+  var jobs=[],i;
+  for(i=0;i<notes.length;i++){
+    var nm=noteName(notes[i]);
+    if(state.samples[instr]&&state.samples[instr][nm])continue;
+    var uri=f[nm]||f[nm.replace("#","b")];
+    if(!uri)continue;
+    (function(nm,uri,mn){
+      jobs.push(decodeFontNote(uri).then(function(d){
+        state.samples[instr]=state.samples[instr]||{};
+        state.samples[instr][nm]={data:d.data,sr:d.sr,hz:noteHz(mn)};
+      }));
+    })(nm,uri,notes[i]);
+  }
+  return Promise.all(jobs).then(function(){return true;}).catch(function(){return false;});
+}
+function pickSample(instr,hz){
+  var pool=state.samples[instr],best=null,bd=1e9,mn;
+  if(!pool)return null;
+  for(mn in pool){var d=Math.abs(Math.log2(pool[mn].hz/hz));if(d<bd){bd=d;best=pool[mn];}}
+  return best;
+}
+function parseWav(u8){
+  try{
+    var dv=new DataView(u8.buffer,u8.byteOffset,u8.byteLength);
+    if(dv.getUint32(0,false)!==0x52494646)return null;
+    var off=12,fmt=null,dat=null;
+    while(off+8<=u8.length){
+      var id=String.fromCharCode(u8[off],u8[off+1],u8[off+2],u8[off+3]);
+      var sz=dv.getUint32(off+4,true);
+      if(id==="fmt ")fmt={ch:dv.getUint16(off+8+2,true),sr:dv.getUint32(off+8+4,true),bits:dv.getUint16(off+8+14,true)};
+      if(id==="data"){dat={off:off+8,sz:sz};break;}
+      off+=8+sz+(sz&1);
+    }
+    if(!fmt||!dat||fmt.bits!==16)return null;
+    var n=Math.floor(dat.sz/2/fmt.ch),out=new Float32Array(n),stride=fmt.ch,i;
+    for(i=0;i<n;i++)out[i]=dv.getInt16(dat.off+i*2*stride,true)/32768;
+    return {data:out,sr:fmt.sr};
+  }catch(e){return null;}
+}
+function loadDrumKit(){
+  if(drumKit)return Promise.resolve(true);
+  if(drumStatus==="loading")return null;
+  drumStatus="loading";
+  var want={36:"bass_drum_1",38:"acoustic_snare",39:"hand_clap",42:"closed_hi_hat",46:"open_hi_hat",54:"tambourine",56:"cowbell"};
+  return fetchT(DRUM_BASES[0].replace("/samples/","/")+"manifest.json").then(function(r){return r&&r.ok?r.json():null;}).catch(function(){return null;})
+  .then(function(man){
+    var kit={},jobs=[],i;
+    for(i in want){
+      (function(note,fb){
+        var file=fb+".wav";
+        if(man){
+          var hit=null;
+          if(Array.isArray(man)){for(var j=0;j<man.length;j++){var it=man[j];if((it.note===note||it.midi===note)&&it.file)hit=it.file;}}
+          else if(man[String(note)]&&man[String(note)].file)hit=man[String(note)].file;
+          if(hit)file=hit;
+        }
+        jobs.push(function(){var bi=0;
+          function one(){if(bi>=DRUM_BASES.length)return Promise.reject(0);
+            return fetchT(DRUM_BASES[bi++]+file).then(function(r){if(!r||!r.ok)return one();return r.arrayBuffer();});}
+          return one();}().then(function(ab){
+          var w=parseWav(new Uint8Array(ab));
+          if(w)kit[note]=w;
+        }).catch(function(){}));
+      })(+i,want[i]);
+    }
+    return Promise.all(jobs).then(function(){
+      if(kit[36]&&kit[38]){drumKit=kit;drumStatus="ok";return true;}
+      drumStatus="fail";return false;
+    });
+  });
+}
+function renderSample(data,sr,dur,gain,ratio,fade){
+  var n=Math.floor(dur*SR),b=mkBuf(n),step=ratio*(sr||SR)/SR,idx=0,i,used=0;
+  var maxIdx=data.length-2;
+  for(i=0;i<n;i++){
+    if(idx>=maxIdx){used=i;break;}
+    var i0=Math.floor(idx),fr=idx-i0;
+    b[i]=(data[i0]*(1-fr)+data[i0+1]*fr)*gain;
+    idx+=step;used=i+1;
+  }
+  if(fade&&used>0){var fl=Math.min(Math.floor(0.006*SR),used>>1),j;
+    for(j=0;j<fl;j++)b[used-1-j]*=j/fl;
+    var fi2=Math.min(64,used>>3);
+    for(j=0;j<fi2;j++)b[j]*=j/fi2;
+  }
+  return b;
+}
+// ---- басовые движки: 909 + синтез-фолбэки для сэмпловых движков ----
+function bass909(freq,dur,drive,slideTo){
+  var n=Math.floor(dur*SR),b=mkBuf(n),ph=0,i;
+  for(i=0;i<n;i++){var t=i/SR;
+    var f=freq+(freq*2.2-freq)*Math.exp(-t*90);
+    if(slideTo){var pl=clamp((t-dur*0.55)/(dur*0.45),0,1);f=f*(1-pl)+slideTo*pl;}
+    ph+=f/SR;
+    var body=(2*(ph%1)-1)*0.7+Math.sign(Math.sin(TAU*ph))*0.3;
+    var e=Math.exp(-t*6);
+    b[i]=(body+Math.sin(TAU*ph*3)*0.2*e+Math.exp(-t*300)*0.5)*e;
+  }
+  b=onepoleLP(b,1600,SR);
+  b=sat4x(b,1+drive*0.6);
+  return normPeak(b,0.92);
+}
+function bassPick(freq,dur,drive,pickAmt){
+  var n=Math.floor(dur*SR),b=mkBuf(n),ph=0,i;
+  for(i=0;i<n;i++){var t=i/SR;
+    var env=Math.exp(-t*(freq>90?3.2:2.1)),s=0,k;
+    for(k=1;k<=10;k++)s+=Math.sin(TAU*ph*k)*Math.pow(1/k,1.2);
+    s=s*0.35*env+Math.exp(-t*180)*pickAmt*(Math.random()*2-1);
+    ph+=freq/SR;
+    b[i]=s;
+  }
+  b=sat4x(b,1+drive*0.4);
+  b=onepoleLP(b,2400,SR);
+  return normPeak(b,0.92);
+}
+function bassJazzSynth(freq,dur,drive){
+  var n=Math.floor(dur*SR),b=mkBuf(n),ph=0,i;
+  for(i=0;i<n;i++){var t=i/SR;
+    var atk=Math.min(1,t/0.012),env=atk*Math.exp(-t*2.6);
+    var s=Math.sin(TAU*ph)+Math.sin(TAU*2*ph)*0.18+Math.sin(TAU*3*ph)*0.08;
+    b[i]=s*0.55*env+Math.exp(-t*140)*(Math.random()*2-1)*0.22;
+    ph+=freq/SR;
+  }
+  return normPeak(sat4x(b,1+drive*0.3),0.92);
+}
+// ---- диспетчеры: сэмплы саундфонта, если загружены, иначе синтез ----
+function fontEngineOn(){return state.bassEngine!=="808"&&state.bassEngine!=="909";}
+function wallClip(b){ // стена баса: жёсткий клип верхушек голоса
+  var ceil=Math.max(0.15,0.72-(state.drive||0)*0.035);
+  for(var i=0;i<b.length;i++){if(b[i]>ceil)b[i]=ceil;else if(b[i]<-ceil)b[i]=-ceil;}
+  return b;
+}
+function bassVoice(freq,dur,drive,slideTo){
+  if(fontEngineOn()){
+    var s=pickSample(FONT_INSTR[state.bassEngine],freq);
+    if(s)return wallClip(renderSample(s.data,s.sr,dur,0.65,freq/s.hz,true));
+  }
+  if(state.bassEngine==="909")return wallClip(bass909(freq,dur,drive,slideTo));
+  if(state.bassEngine==="rock")return wallClip(bassPick(freq,dur,drive,0.5));
+  if(state.bassEngine==="jazz")return wallClip(bassJazzSynth(freq,dur,drive));
+  if(state.bassEngine==="acoustic")return wallClip(bassPick(freq,dur,drive,0.25));
+  return wallClip(bass808(freq,dur,drive,slideTo));
+}
+function melVoice(freq,dur){
+  if(state.melWave==="font"){
+    var s=pickSample("piano",freq);
+    if(s)return renderSample(s.data,s.sr,dur,4.8,freq/s.hz,true);
+  }
+  if(state.melWave==="rhodes"){
+    var r_=pickSample("rhodes",freq);
+    if(r_){
+      var rb=renderSample(r_.data,r_.sr,dur,3.1,freq/r_.hz,true);
+      return onepoleLP(rb,4200,SR); // мягкий Rhodes: приглушённый верх, без атаки рояля
+    }
+  }
+  return (state.melWave==="rhodes")?rhodesSynth(freq,dur):melody(freq,dur);
+}
+function drumKick(dur,duckEnv,click){
+  if(fontEngineOn()&&drumKit&&drumKit[36])return renderSample(drumKit[36].data,drumKit[36].sr,dur,0.9,1,false);
+  return kick(dur,duckEnv,click);
+}
+function drumSnare(level,send){
+  if(fontEngineOn()&&drumKit&&drumKit[38]){
+    var b=renderSample(drumKit[38].data,drumKit[38].sr,0.42,0.9*level,1,true);
+    sendToReverb(b,send*0.5);
+    return b;
+  }
+  return snareHit(level,send);
+}
+function drumHat(open,level){
+  if(fontEngineOn()&&drumKit){
+    var note=open?46:42;
+    if(drumKit[note])return renderSample(drumKit[note].data,drumKit[note].sr,open?0.4:0.12,level*1.1,1,true);
+  }
+  return hat(open,level);
+}
+function drumCow(level){
+  if(fontEngineOn()&&drumKit&&drumKit[56])return renderSample(drumKit[56].data,drumKit[56].sr,0.32,level*1.15,1,true);
+  return cowbell(level);
+}
+// ---- реверб (стерео, 4 comb + 2 allpass на канал) ----
+var revBufL,revBufR,revLen,revPtr=0;
+function initReverb(sr){
+  revLen=Math.floor(sr*1.9);
+  revBufL=mkBuf(revLen);revBufR=mkBuf(revLen);revPtr=0;
+}
+var combDelaysL=[1081,1361,1619,1861],combDelaysR=[1087,1367,1621,1867];
+var apDelaysL=[347,113],apDelaysR=[353,109];
+function sendToReverb(b,amt){if(!revBufL||!revBufR)return;
+  if(amt<=0.001)return;
+  var n=b.length;
+  for(var i=0;i<n;i++){
+    var x=b[i]*amt, l=0, r=0, j;
+    for(j=0;j<4;j++){
+      var dl=(revPtr+combDelaysL[j])%revLen, dr=(revPtr+combDelaysR[j])%revLen;
+      l+=revBufL[dl]; r+=revBufR[dr];
+    }
+    l*=0.25; r*=0.25;
+    revBufL[revPtr]=x+l*0.78; revBufR[revPtr]=x+r*0.78;
+    revPtr=(revPtr+1)%revLen;
+  }
+}
+function reverbTail(){
+  var outL=mkBuf(revLen),outR=mkBuf(revLen),i,j;
+  for(i=0;i<revLen;i++){
+    var l=0,r=0;
+    for(j=0;j<4;j++){
+      l+=revBufL[(i+combDelaysL[j])%revLen]; r+=revBufR[(i+combDelaysR[j])%revLen];
+    }
+    l*=0.25; r*=0.25;
+    var al=revBufL[(i+apDelaysL[0])%revLen],ar=revBufR[(i+apDelaysR[0])%revLen];
+    outL[i]=-0.6*l*0.5+al*0.8; outR[i]=-0.6*r*0.5+ar*0.8;
+  }
+  return [outL,outR];
+}
+
+function reverbDecay(track,n){
+  var L=track.L,R=track.R,n0=L.length-n,i,j;
+  if(n0<0){n0=0;n=L.length;}
+  for(i=0;i<n;i++){
+    var idx=n0+i,l=0,r=0;
+    for(j=0;j<4;j++){
+      l+=revBufL[(revPtr+combDelaysL[j])%revLen];
+      r+=revBufR[(revPtr+combDelaysR[j])%revLen];
+    }
+    l*=0.25;r*=0.25;
+    var al=revBufL[(revPtr+apDelaysL[0])%revLen],ar=revBufR[(revPtr+apDelaysR[0])%revLen];
+    var wl=l*0.5+al*0.4,wr=r*0.5+ar*0.4;
+    var fade=Math.exp(-i/(SR*0.9));
+    L[idx]+=wl*0.4*fade;R[idx]+=wr*0.4*fade;
+    revBufL[revPtr]=l*0.78;revBufR[revPtr]=r*0.78;
+    revPtr=(revPtr+1)%revLen;
+  }
+}
+
+// ---- мелодический движок ----
+function ScaleEngine(){
+  this.tr=((typeof state!=="undefined"&&state.note)||9)-9;
+  this.root=57+this.tr;
+  var tr0=this.tr;
+  this.penta=[57,60,62,64,67,69,72,74,76,79].map(function(x){return x+tr0;});
+}
+ScaleEngine.prototype.chordTones=function(ch){ // ch: 0..3 для Am F C G
+  var tr0=this.tr||0;var roots=[57,53,48,55].map(function(x){return x+tr0;});
+  var r=roots[ch];
+  var ivs=(ch===0)?[0,3,7,12,15,19]:[0,4,7,12,16,19]; // Am минорный, F/C/G мажорные
+  return ivs.map(function(x){return r+x;}).filter(function(x){return x>=53&&x<=81;});
+};
+// ПРИМЕЧАНИЕ: упрощено ниже в buildMelody
+function buildMelody(bars,spb){
+  // Паттерн 16 тактов = фраза 8 тактов + её вариация 8 тактов.
+  // Первая половина: вопрос (редкий ритм, подъём) -> ответ (плотный ритм, спуск, каденция в тонику).
+  // Вторая половина: тот же вопрос (скелет узнаваем) -> ответ с орнаментами и другой линией.
+  var s=new ScaleEngine(),ev=[],stepDur=spb/4;
+  var base=s.root;
+  var scale=[0,2,3,5,7,8,10]; // натуральный минор от тоники
+  function degToN(d){var o=Math.floor(d/7),sd=d-o*7;return base+12*o+scale[sd];}
+  var chordDegs=[[0,2,4],[5,0,2],[2,4,6],[6,1,3]]; // Am F C G по ступеням лада
+  function snapDeg(d,cb){
+    var want=chordDegs[cb],best=want[0],bd=99,k,c;
+    for(k=0;k<want.length;k++){
+      var cands=[want[k]-7,want[k],want[k]+7];
+      for(c=0;c<3;c++){var dd=Math.abs(cands[c]-d);if(dd<bd){bd=dd;best=cands[c];}}
+    }
+    if(best>13)best-=7;if(best<3)best+=7;
+    return best;
+  }
+  var rhythmA=[[0,4,8,12],[0,4,6,8,12],[0,2,4,8,12],[0,6,8,10,12],[0,4,8,10,12]];   // редкие: "та та ту та"
+  var rhythmB=[[0,2,4,8,10,12],[0,2,6,8,10,14],[0,4,6,8,10,12],[0,2,4,10,12,14],[0,2,6,10,12]]; // плотные: "ту та та ту ту та"
+  var used=-1;
+  function pickR(pool){var idx;do{idx=Math.floor(Math.random()*pool.length);}while(idx===used&&pool.length>1);used=idx;return pool[idx].slice();}
+  var qs=[],as=[],qs2=[],as2=[],bi;
+  for(bi=0;bi<4;bi++)qs.push(pickR(rhythmA));
+  for(bi=0;bi<4;bi++)as.push(pickR(rhythmB));
+  var reuse=Math.random()<0.55; // вопрос во второй половине: чаще тот же скелет (узнаваемость)
+  for(bi=0;bi<4;bi++)qs2.push(reuse?qs[bi].slice():pickR(rhythmA));
+  var asKey=as.map(function(x){return x.join(",");});
+  for(bi=0;bi<4;bi++){
+    var r;do{r=pickR(rhythmB);}while(r.join(",")===asKey[bi]); // ответ второй половины гарантированно другой
+    as2.push(r);
+  }
+  var deg=7+(Math.random()<0.5?1:0);
+  var hist=[];
+  function stepWalk(biasUp){
+    var mags=[1,1,1,2,2,3];
+    var mag=mags[Math.floor(Math.random()*mags.length)];
+    if(Math.random()<0.3)biasUp=!biasUp;
+    var d=biasUp?mag:-mag;
+    var nd=deg+d;
+    if(nd<3){nd=deg+mag;if(nd>13)nd=deg+1;}
+    if(nd>13){nd=deg-mag;if(nd<3)nd=deg-1;}
+    if(nd<3)nd=3;if(nd>13)nd=13;
+    return nd;
+  }
+  function antiStuck(nd,biasUp){
+    var m=hist.length;
+    if(m>=2&&hist[m-1]===nd&&hist[m-2]===nd)nd=nd+(biasUp?1:-1);
+    if(nd<3)nd=3;if(nd>13)nd=13;
+    return nd;
+  }
+  var barsSeq=[];
+  for(bi=0;bi<16;bi++){
+    var o={rh:(bi<4||bi>=8&&bi<12)?(bi<4?qs[bi]:qs2[bi-8]):(bi<8?as[bi-4]:as2[bi-12])};
+    if(bi===3||bi===11)o.hang=true;
+    if(bi===7||bi===15)o.cadence=true;
+    if(bi>=12)o.orn=true;
+    barsSeq.push(o);
+  }
+  barsSeq.forEach(function(bs,bIdx){
+    var cb=bIdx%4,notes=[],occ={},lastSt=bs.rh[bs.rh.length-1];
+    var biasUp=(bIdx<4||(bIdx>=8&&bIdx<12));
+    bs.rh.forEach(function(st,j){
+      var strong=(st%4===0);
+      var nd=stepWalk(biasUp);
+      if(j===0)nd=snapDeg(deg,cb);            // старт такта держим в гармонии
+      if(strong)nd=snapDeg(nd,cb);            // сильные доли — в аккорде
+      if(bs.hang&&j===bs.rh.length-1)nd=snapDeg(nd,cb); // висячая нота тоже в аккорде
+      if(bs.cadence&&st===12)nd=(Math.random()<0.5?8:6); // подводка к тонике сверху или снизу
+      if(bs.cadence&&st>=14)nd=7;             // сама тоника
+      nd=antiStuck(nd,biasUp);
+      var len=strong?(Math.random()<0.5?3:2):1;
+      if(!strong&&Math.random()<0.18&&j<bs.rh.length-1&&bs.rh[j+1]-st>1)len=2; // синкопа-тай
+      if(bs.cadence&&st>=12)len=Math.min(16-st,4);
+      if(bs.hang&&j===bs.rh.length-1)len=16-st;
+      notes.push({st:st,n:nd,len:len});
+      occ[st]=true;
+      if(bs.orn&&strong&&st>0&&!occ[st-1]){ // форшлаг на сильную долю во второй половине
+        var gd=nd+(Math.random()<0.5?1:-1);
+        if(gd<3)gd=3;if(gd>13)gd=13;
+        notes.push({st:st-1,n:gd,len:1});
+        occ[st-1]=true;
+      }
+      hist.push(nd);if(hist.length>2)hist.shift();
+      deg=nd;
+    });
+    if(bs.cadence&&lastSt<12)notes.push({st:14,n:7,len:2}); // каденция всё равно закрывается
+    notes.sort(function(a,b2){return a.st-b2.st;});
+    notes.forEach(function(nt){ev.push({st:bIdx*16+nt.st,n:degToN(nt.n),len:nt.len});});
+  });
+  return {events:ev,stepDur:stepDur};
+}
+
+// ---- парсер MIDI ----
+function parseMIDI(bytes){
+  function rd(o,l){var s=0;for(var i=0;i<l;i++)s=(s<<8)|bytes[o+i];return [s,o+l];}
+  function vlen(o){var v=0;while(true){var b=bytes[o++];v=(v<<7)|(b&0x7f);if(!(b&0x80))break;}return [v,o];}
+  if(bytes.length<14)return null;
+  if(String.fromCharCode(bytes[0],bytes[1],bytes[2],bytes[3])!=="MThd")return null;
+  var hlen;var r=rd(4,4);hlen=r[0];
+  r=rd(8,2);var fmt=r[0];
+  r=rd(10,2);var ntrk=r[0];
+  r=rd(12,2);var div=r[0];
+  if(div&0x8000)div=480;
+  var tpq=div;
+  var chanNotes=[],chanCount={};
+  var pos=8+hlen;
+  for(var t=0;t<ntrk&&pos<bytes.length;t++){
+    if(String.fromCharCode(bytes[pos],bytes[pos+1],bytes[pos+2],bytes[pos+3])!=="MTrk")break;
+    r=rd(pos+4,4);var tlen=r[0];pos=r[1];
+    var end=pos+tlen,tick=0,run=0,open={};
+    while(pos<end){
+      r=vlen(pos);var dt=r[0];pos=r[1];tick+=dt;
+      var st=bytes[pos];
+      if(st<0x80){st=run;}else{pos++;if(st<0xF0)run=st;}
+      var type=st&0xF0, ch=st&0x0F;
+      if(type===0x90&&bytes[pos+1]>0){
+        var note=bytes[pos],vel=bytes[pos+1];pos+=2;
+        open[ch+":"+note]={tick:tick,vel:vel};
+        chanCount[ch]=(chanCount[ch]||0)+1;
+      }else if(type===0x80||(type===0x90&&bytes[pos+1]===0)){
+        var note2=bytes[pos];pos+=2;
+        var k=ch+":"+note2;
+        if(open[k]){
+          chanNotes.push({ch:ch,n:note2,start:open[k].tick,end:tick});
+          delete open[k];
+        }
+      }else if(st===0xFF){
+        pos++;r=vlen(pos);pos=r[0]+r[1];
+      }else if(st===0xF0||st===0xF7){
+        r=vlen(pos);pos=r[0]+r[1];
+      }else if(type===0xB0||type===0xA0||type===0xE0){pos+=2;}
+      else if(type===0xC0||type===0xD0){pos+=1;}
+      else{pos++;}
+    }
+    pos=end;
+  }
+  if(!chanNotes.length)return null;
+  // самый активный канал
+  var best=chanNotes[0],bc=-1;
+  var byChan={};
+  chanNotes.forEach(function(x){(byChan[x.ch]=byChan[x.ch]||[]).push(x);});
+  for(var c in byChan){if(byChan[c].length>bc){bc=byChan[c].length;best=byChan[c];}}
+  // нормализация в шаги 1/16
+  var stepTicks=tpq/4;
+  var minT=1e9,maxT=0;
+  best.forEach(function(x){if(x.start<minT)minT=x.start;if(x.end>maxT)maxT=x.end;});
+  var evs=best.map(function(x){
+    var s0=Math.round((x.start-minT)/stepTicks);
+    var s1=Math.max(s0+1,Math.round((x.end-minT)/stepTicks));
+    return {st:s0,n:x.n,len:Math.min(s1-s0,32)};
+  }).sort(function(a,b){return a.st-b.st;});
+  // подстройка частот: транспонирование октавами в диапазон + прилипание к пентатонике
+  var avg=0;evs.forEach(function(e){avg+=e.n;});avg/=evs.length;
+  var target=69,oct=Math.round((target-avg)/12);
+  var pentaPC=[9,0,2,4,7];
+  evs.forEach(function(e){
+    e.n=e.n+oct*12;
+    var pc=((e.n%12)+12)%12,bd=99,bpc=pentaPC[0];
+    pentaPC.forEach(function(p){var d=Math.min(Math.abs(p-pc),12-Math.abs(p-pc));if(d<bd){bd=d;bpc=p;}});
+    var shift=bpc-pc;if(Math.abs(shift)>6)shift-=Math.sign(shift)*12;
+    e.n+=shift;
+  });
+  var trN=(state.note||9)-9;if(trN)evs.forEach(function(e){e.n+=trN;});
+  var span=Math.max.apply(null,evs.map(function(e){return e.st+e.len;}));
+  var bars=Math.max(2,Math.min(16,Math.ceil(span/16)));
+  return {events:evs,bars:bars,truncated:false};
+}
+
+// ---- пэд и райзер ----
+function padChord(rootMidi,dur,sr,lpF){
+  var n=Math.floor(dur*SR),bL=mkBuf(n),bR=mkBuf(n);
+  var minor=(((rootMidi%12)+12)%12===9); // A — минор, F/C/G — мажор
+  var ivs=minor?[0,3,7,12]:[0,4,7,12];
+  var tones=ivs.map(function(x){return noteHz(rootMidi+x);});
+  var i,k;
+  for(k=0;k<4;k++){
+    var phL=0,phR=0,det=1+0.003*(k-1.5);
+    for(i=0;i<n;i++){
+      var t=i/SR,e8=dur/8,seg=Math.floor(t/e8),tw=t-seg*e8;
+      var breath=0.52+0.13*Math.sin(TAU*t/(e8*2)); // непрерывное дыхание на тех же восьмых — без щелчков
+      var a=breath*Math.min(1,t/0.9)*Math.exp(-Math.max(0,t-dur+0.7)*4);
+      phL+=tones[k]/SR;phR+=tones[k]*det/SR;
+      var s=(2*((phL%1))-1+2*((phR%1))-1)*0.5;
+      bL[i]+=s*a*0.13;bR[i]+=s*a*0.13*0.96;
+    }
+  }
+  lpF=lpF||2600;
+  bL=onepoleLP(bL,lpF,SR);bR=onepoleLP(bR,lpF,SR);
+  return [bL,bR];
+}
+function riser(dur){
+  var n=Math.floor(dur*SR),b=mkBuf(n),i;
+  for(i=0;i<n;i++){var t=i/SR,p=t/dur;
+    b[i]=(Math.random()*2-1)*p*p*0.5+Math.sin(TAU*(300+2600*p*p)*t)*p*p*0.35;}
+  b=onepoleHP(b,300,SR);
+  var fd=Math.min(n,Math.floor(SR*0.12)),k;for(k=0;k<fd;k++){b[n-1-k]*=1-k/fd;} // спад пика: райзер не врезается в кик дропа
+  return b;
+}
+
+// ---- аранжировка: вариативная архитектура ----
+function buildArrangement(mode,bpm,cowbellOn,snareOn){
+  var spb=60/bpm, step=spb/4, ev=[],t=0,bars=0;
+  function bar(b){return b*4*spb;}
+  var chords=[45,41,48,43].map(function(x){return x+((state.note||9)-9);}); // корни: A2 F2 C3 G2 · транспонирование синхронно с мелодией
+  var sections=[];
+  var spbBar=4*spb;
+  var introBars=state.skipIntro?0:pick([2,4]);
+  var outroBars=pick([2,4]);
+  sections.push({name:"intro",bars:introBars});
+  sections.push({name:"verse",bars:8});
+  sections.push({name:"drop",bars:8,variant:pick(["oct","cow","plain"])});
+  var totalBars_=introBars+16;
+  var targets=[110,115,120,120,125,125,115,120];
+  var target=targets[Math.floor(Math.random()*targets.length)];
+  var pairs=0,bridgePlaced=false;
+  while(totalBars_*spbBar<target&&pairs<8){
+    pairs++;
+    sections.push({name:"verse",bars:8});totalBars_+=8;
+    if(!bridgePlaced&&Math.random()<0.35){sections.push({name:"bridge",bars:8});bridgePlaced=true;totalBars_+=8;}
+    sections.push({name:"drop",bars:8,variant:pick(["oct","cow","plain"])});totalBars_+=8;
+  }
+  if(!bridgePlaced&&Math.random()<0.6){sections.push({name:"bridge",bars:8});bridgePlaced=true;totalBars_+=8;}
+  while(totalBars_*spbBar>150&&pairs>1){
+    var lastS=sections[sections.length-1];
+    if(lastS.name!=="drop")break;
+    sections.pop();totalBars_-=8;
+    var pv=sections[sections.length-1];
+    if(pv&&pv.name==="bridge"){sections.pop();totalBars_-=8;pv=sections[sections.length-1];}
+    if(pv&&pv.name==="verse"){sections.pop();totalBars_-=8;}
+    pairs--;
+  }
+  while(totalBars_*spbBar<90&&pairs<9){
+    pairs++;
+    sections.push({name:"verse",bars:8});totalBars_+=8;
+    sections.push({name:"drop",bars:8,variant:pick(["oct","cow","plain"])});totalBars_+=8;
+  }
+  sections.push({name:"outro",bars:outroBars});
+  totalBars_+=outroBars;
+  var melEvents, patBars, midiUsed=false, midiWarn="";
+  if(state.midiPattern){
+    melEvents=state.midiPattern.events;patBars=state.midiPattern.bars;midiUsed=true;
+    if(state.midiPattern.truncated)midiWarn="MIDI ОБРЕЗАН ДО 16 ТАКТОВ";
+  }else{
+    var mm=buildMelody(16,spb); // 16 тактов мотивов, зациклим по секциям
+    melEvents=mm.events;patBars=16;
+  }
+  var melByStep={};
+  melEvents.forEach(function(e){
+    if(!melByStep[e.st])melByStep[e.st]=[];
+    if(melByStep[e.st].length<3)melByStep[e.st].push(e);
+  });
+  var totalBars=0;
+  sections.forEach(function(s){totalBars+=s.bars;});
+  var totalSamples=Math.ceil((totalBars*4*spb+2.2)*SR);
+  var track={L:mkBuf(totalSamples),R:mkBuf(totalSamples)};
+  var duckEnv=mkBuf(totalSamples);
+  window.__melDry=mkBuf(totalSamples);
+  window.__padDryL=mkBuf(totalSamples);window.__padDryR=mkBuf(totalSamples);
+  window.__rupt=mkBuf(totalSamples);
+  var cur=0; // счётчик тактов
+  var melodyGain=midiUsed?0.55:0.32, padOn=true;
+  sections.forEach(function(sec,si){
+    var s0=cur;
+    for(var bi=0;bi<sec.bars;bi++){
+      var bar0=(cur+bi), chord=chords[bar0%4], barT=bar(bar0);
+      var isDrop=(sec.name==="drop"||sec.name==="outro"), isIntro=(sec.name==="intro");
+      if(state.lofi)isDrop=false; // LO-FI: ровная ткань, дроп не выпрыгивает
+      var introOff=(midiUsed&&state.midiAfterIntro)?introBars:0;
+      var isBridge=(sec.name==="bridge");
+      // ---- барабаны ----
+      var ksteps;
+      if(mode==="hard") ksteps=isDrop?[[0,4,8,12,14],[0,4,8,12],[0,4,7,8,12,14],[0,4,8,10,12]][bi%4]:[0,4,8,12];
+      else if(mode==="zud") ksteps=isDrop?[[0,3,6,8,10,12],[0,3,6,8,10,14],[0,2,6,8,10,12,14],[0,3,7,8,10,12]][bi%4]:[[0,6,10,14],[0,6,10,14,15],[0,6,10,12,14],[0,5,6,10,14]][bi%4];
+      else if(mode==="funk") ksteps=isDrop?[[0,4,12],[0,3,4,12],[0,4,6,12],[0,4,12,14]][bi%4]:((bi%4===3)?[0,3,6,9,12,15]:[0,3,6,10,13]);
+      else ksteps=isDrop?[[0,6,10,14],[0,6,10,14,15],[0,6,10,12,14],[0,5,6,10,14]][bi%4]:[[0,7,10],[0,3,6,10],[0,7,10,14],[0,6,10]][bi%4];
+      if(!isIntro)ksteps.forEach(function(st){
+        var tt=barT+st*step;
+        place(track,duckEnv,barT+st*step,drumKick(0.5,0,state.clickKick),0.95,"B");
+      });
+      // саб-бас: низкая линия от мелодии — ритм по её онсетам, высота по гармонии, без копирования
+      if(!isIntro){
+      var bl=mode==="funk"?1:0.62;
+       introOff=(midiUsed&&state.midiAfterIntro)?introBars:0;
+       var onsets=[];
+       for(var bs=0;bs<16;bs++){
+         var absB=((bar0-introOff)%patBars+patBars)%patBars*16+bs;
+         var mb=melByStep[absB];
+         if(mb&&mb.length&&(bs%2===0||Math.random()<0.3))onsets.push({st:bs,me:mb[0]});
+       }
+       if(isIntro){onsets=onsets.filter(function(o){return o.st===0||o.st===8;});}
+       if(!onsets.length)onsets=[{st:0,me:null}];
+       if(!isIntro&&Math.random()<0.7)onsets.push({st:14,me:null});
+       onsets.sort(function(a,b2){return a.st-b2.st;});
+       var nextChord=chords[(bar0+1)%4];
+       onsets.forEach(function(bo,ix){
+         var last=(ix===onsets.length-1);
+         var semi=chord-12;
+         if(last)semi=nextChord-12-1;               // подводка снизу к следующему аккорду
+         else if(bo.me&&Math.random()<0.75){
+           semi=chord-12+clamp(bo.me.n-chord,-3,3); // контур мелодии, сжатый до ±3
+           if(Math.random()<0.2)semi-=7;            // квинта вниз
+         }else if(Math.random()<0.25)semi-=7;
+         var hz=noteHz(semi);
+         while(hz>110)hz/=2;                        // жёсткий потолок регистра 110 Гц
+         var nxt=onsets[ix+1]?onsets[ix+1].st:16;
+         var dur=Math.max(step*0.9,(nxt-bo.st)*step*0.92);
+         var slideTo=last?noteHz(nextChord-12):0;
+         place(track,duckEnv,barT+bo.st*step,bassVoice(hz,dur,state.drive,slideTo),bl,"T");
+         if(state.grit)place(track,duckEnv,barT+bo.st*step,grit(hz*2,dur,state.drive,state.gate,state.duty,state.clip),bl*0.8,"G");
+       });
+ 
+      }
+      // снейр
+      if(snareOn&&!isIntro){
+        if(isDrop){
+          place(track,duckEnv,barT+8*step,drumSnare(1,0.5),0.95,"L");
+          if(Math.random()<0.7)place(track,duckEnv,barT+14*step,drumSnare(0.4,0.5),0.45,"L");
+          if(mode==="zud")place(track,duckEnv,barT+12*step,drumSnare(0.3,0.4),0.35,"L");
+        }else if(mode==="hard"||mode==="zud"){
+          place(track,duckEnv,barT+8*step,drumSnare(1,0.5),0.9,"L");
+        }else{
+        [4,12].forEach(function(st,ix){
+          var lvl=[1,0.8,0.65][Math.floor(Math.random()*3)];
+          place(track,duckEnv,barT+st*step,drumSnare(lvl,0.5),0.75,"L");
+        });
+        }
+        if(isBridge&&(sec.bars-bi)<=2){ // сбивка-ролл
+          for(var r=0;r<16;r++)place(track,duckEnv,barT+r*step,drumSnare(0.5,0.4),0.5,"L");
+        }
+      }else if(!snareOn&&!isIntro){
+        // энергия вместо снейра: ролл из хэтов
+        for(var h=0;h<16;h++)place(track,duckEnv,barT+h*step,drumHat(false,0.5),0.5,"L");
+      }
+      // хэты
+      if(!isIntro){
+        if(isDrop){
+          for(var hs=0;hs<16;hs++){
+            var lv=0.3+((hs%4===0)?0.25:0.08)+Math.random()*0.15;
+            place(track,duckEnv,barT+hs*step,drumHat(false,lv),0.55,"L");
+          }
+          place(track,duckEnv,barT+6*step,drumHat(true,0.6),0.6,"L");
+        }else if(mode==="hard"){
+          for(var hs=1;hs<16;hs+=2){
+            var lv=0.4+Math.random()*0.3;
+            place(track,duckEnv,barT+hs*step,drumHat(false,lv),0.55,"L");
+          }
+        }else if(mode==="zud"){
+          for(var hs=0;hs<16;hs++){
+            var lv=0.3+((hs%4===0)?0.22:0.08)+Math.random()*0.12;
+            place(track,duckEnv,barT+hs*step,drumHat(false,lv),0.55,"L");
+          }
+          place(track,duckEnv,barT+6*step,drumHat(true,0.6),0.6,"L");
+        }else{
+          for(var hs=0;hs<16;hs+=2){
+            var lv=0.4+Math.random()*0.3;
+            place(track,duckEnv,barT+hs*step,drumHat(false,lv),0.55,"L");
+          }
+          place(track,duckEnv,barT+14*step,drumHat(true,0.6),0.6,"L");
+          if(bi%4===3){for(var tr=0;tr<3;tr++)place(track,duckEnv,barT+(12+tr*2/3)*step,drumHat(false,0.5+tr*0.05),0.5,"L");}
+        }
+      }
+      // ковбелл: в фанке авто-качбек 3+3+2, в классике — только по тумблеру
+      var cowOn=(mode==="funk")?true:state.cowbell;
+      if(cowOn&&!isIntro){
+        [0,3,6,8,11,14].forEach(function(st){
+          if(Math.random()<0.8){
+            var cg=(mode==="funk"&&(st===0||st===6||st===11))?0.55:0.3;
+            place(track,duckEnv,barT+st*step,drumCow(0.8),cg,"L");
+          }
+        });
+      }
+      // мелодия: в интро — тихая и разреженная, со 2-го такта
+      {
+        var oct=0; // октавные сдвиги дропа убраны: мелодия всегда одна
+        var mg=melodyGain;
+        if(isIntro){mg=melodyGain*0.5;}
+        for(var st2=0;st2<16;st2++){
+          if(isIntro&&bi===0)break;
+          var absStep=((bar0-introOff)%patBars+patBars)%patBars*16+st2;
+          var marr=melByStep[absStep];
+          if(!marr)continue;
+          if(isIntro&&st2%2===1&&Math.random()<0.5)continue;
+          marr.forEach(function(me,mi){
+            var mlen=Math.min(me.len,16-st2)*step;
+            place(track,duckEnv,barT+st2*step,melVoice(noteHz(me.n+oct),mlen),mg*(mi===0?1:0.6),"M");
+          });
+        }
+      }
+      // пэд в интро и бридже
+      if(isIntro||isBridge){
+        var pLp=isIntro?1700:2600;
+        var pgain=isIntro?(0.09+0.11*(bi/Math.max(1,sec.bars-1))):0.3;
+        var pc=padChord(chord+24,4*spb,SR,pLp);
+        placeStereo(track,barT,pc,pgain,"P");
+      }
+    }
+    if(sec.name==="bridge"){
+      var rd_=riser(2*4*spb);
+      place(track,duckEnv,bar(cur+sec.bars)-2*4*spb,rd_,(state.lofi?0.1:0.22),"L");
+    }
+    if(si+1===sections.length){
+      var rf_=riser(1.5*4*spb);
+      place(track,duckEnv,bar(cur+sec.bars)-1.5*4*spb,rf_,0.06,"L");
+    }
+    cur+=sec.bars;
+  });
+  return {track:track,duck:duckEnv,totalSamples:totalSamples,totalBars:totalBars,sections:sections,spb:spb};
+}
+// размещение моно-события в стерео-трек с ролями микса (попутно питает дакк-энвелоп)
+function place(track,duck,t0,buf,gain,role){
+  var i0=Math.floor(t0*SR),n=buf.length,i;
+  // де-клик: последние 8 мс события плавно уходят в ноль, обрыв волны невозможен
+  var fo=Math.min(n,Math.floor(0.008*SR));
+  if(role==="M"){var d2=window.__melDry||[];for(var q=0;q<n;q++){var ix=i0+q;if(ix<d2.length){var gf=q>=n-fo?(n-1-q)/fo:1;d2[ix]+=buf[q]*gain*gf;}}return;}
+  for(i=0;i<n;i++){
+    var idx=i0+i; if(idx>=track.L.length)break;
+    var gf=i>=n-fo?(n-1-i)/fo:1;
+    var v=buf[i]*gain*gf;
+    track.L[idx]+=v; track.R[idx]+=v;
+  }
+  if(role==="B"){ // источник даккинга
+    for(i=0;i<n;i++){var idx2=i0+i;if(idx2>=duck.length)break;var gb=i>=n-fo?(n-1-i)/fo:1;if(buf[i]*gain*gb>duck[idx2])duck[idx2]=buf[i]*gain*gb;}
+  }
+  if(role==="T"){ // источник разрыва: питает рваность мелодии, не дакк
+    var rp=window.__rupt;for(i=0;i<n;i++){var idx3=i0+i;if(idx3>=rp.length)break;if(buf[i]*gain>rp[idx3])rp[idx3]=buf[i]*gain;}
+  }
+}
+function placeStereo(track,t0,pair,gain,role){
+  if(role==="P"){var dL=window.__padDryL,dR=window.__padDryR;if(dL&&dR){var q0=Math.floor(t0*SR),nP=pair[0].length,qP,foP=Math.min(nP,Math.floor(0.008*SR));for(qP=0;qP<nP;qP++){var ixP=q0+qP;if(ixP>=dL.length)break;var gfP=qP>=nP-foP?(nP-1-qP)/foP:1;dL[ixP]+=pair[0][qP]*gain*gfP;dR[ixP]+=pair[1][qP]*gain*gfP;}return;}}
+  var i0=Math.floor(t0*SR),n=pair[0].length,i;
+  var i0=Math.floor(t0*SR),n=pair[0].length,i;
+  var fi=Math.min(n,Math.floor(0.005*SR)),fo2=Math.min(n,Math.floor(0.01*SR));
+  for(i=0;i<n;i++){
+    var idx=i0+i;if(idx>=track.L.length)break;
+    var gf=1;
+    if(i<fi)gf=i/fi;
+    if(i>=n-fo2)gf=Math.min(gf,(n-1-i)/fo2);
+    track.L[idx]+=pair[0][i]*gain*gf;track.R[idx]+=pair[1][i]*gain*gf;
+  }
+}
+
+// ---- синтез мелодии ----
+function melody(freq,dur){
+  var n=Math.floor(dur*SR),b=mkBuf(n),ph1=0,ph2=0,phS=0,phB=0,i;
+  var f1=freq*0.997,f2=freq*1.003;
+  var isP=(state.melWave==="synth");
+  for(i=0;i<n;i++){
+    var t=i/SR;
+    var vib=1+0.0035*Math.sin(TAU*5.2*t)*Math.min(1,t*2.5);
+    ph1+=f1*vib/SR;ph2+=f2*vib/SR;phS+=freq*0.5/SR;phB+=freq*2/SR;
+    var envF=1-0.55*Math.min(1,t/0.25);
+    var s;
+    if(isP){
+      // пианино-синтез: две расстроенные струны + 9 негармоничных обертонов + стук молоточка
+      var c1=Math.sin(TAU*ph1),c2=Math.sin(TAU*ph2),h=0,k;
+      for(k=1;k<=9;k++){
+        var inh=1+0.0004*k*k;
+        h+=Math.sin(TAU*ph1*k*inh)*Math.pow(1/k,1.7)*(k===1?1:(k%2?0.85:0.55));
+      }
+      h*=0.32;
+      var decay=Math.exp(-t*(2.2+freq/440));
+      var strike=Math.exp(-t*60)*(Math.random()*2-1)*0.3;
+      s=(c1*0.62+c2*0.38)*decay+h*decay*0.9+strike;
+      s+=Math.sin(TAU*phS)*Math.exp(-t*9)*0.1;
+    }else{
+      var saw=(2*(ph1%1)-1+2*(ph2%1)-1)*0.5;
+      s=saw*envF+Math.sign(Math.sin(TAU*phS))*0.18;
+      s+=Math.sin(TAU*phB)*Math.exp(-t*7)*0.08;
+      s+=Math.sin(TAU*phS*2)*0.15;
+    }
+    s*=Math.min(1,t/(isP?0.004:0.008))*Math.exp(-Math.max(0,t-dur*0.7)*9)*Math.exp(-t*(isP?0.7:1.1));
+    b[i]=s*Math.min(1,t/0.002); // атака 2 мс: вход ноты без щелчка
+  }
+  return b;
+}
+function rhodesSynth(freq,dur){
+  var n=Math.floor(dur*SR),b=mkBuf(n),ph=0,ph2=0,i;
+  for(i=0;i<n;i++){
+    var t=i/SR;
+    var env=Math.exp(-t*(1.6+freq/660));
+    var s=Math.sin(TAU*ph)*0.55+Math.sin(TAU*ph2)*0.22;
+    s+=Math.sin(TAU*ph*3.01)*0.1*Math.exp(-t*4);
+    s+=Math.sin(TAU*freq*6.1*t)*Math.exp(-t*55)*0.18; // tine-звон атаки
+    ph+=freq/SR;ph2+=freq*2.004/SR;
+    b[i]=s*env*Math.min(1,t/0.004);
+  }
+  b=onepoleLP(b,3200,SR);
+  var m=0;for(i=0;i<b.length;i++)if(Math.abs(b[i])>m)m=Math.abs(b[i]);
+  if(m>0){var g=0.85/m;for(i=0;i<b.length;i++)b[i]*=g;}
+  return b;
+}
+// ---- шина мелодии: биткруш+перегруз, симметричное эхо, в трек ----
+function mixMelody(track,duck,melDry,melodyGain,state,bpm){
+  var crushed=bitcrush(melDry,state.bits,state.dsf);
+  if(state.melDrive>0)crushed=sat4x(crushed,state.melDrive);
+  var n=crushed.length,delay=Math.floor(spb(bpm)*0.75*SR);
+  var wAtk=Math.max(1,Math.floor(0.006*SR)),wRel=Math.max(1,Math.floor(0.16*SR)),envA=0,envR=0;
+  var i;
+  for(i=0;i<n;i++){
+    var idx=i;
+    var d=duck[idx]||0, r=(window.__rupt||[])[idx]||0;
+    var d0=Math.max(d*2.2,r*2.2);
+    if(i===0){envA=0;envR=0;}
+    envA+=(d0-envA)/wAtk; if(envA<0)envA=0;          // атака 6 мс: кик мягко наезжает
+    if(d0<envR)envR=d0; else envR+=(d0-envR)/wRel;   // отпуск 160 мс: затуманивание, не прокол
+    var act=clamp(Math.max(envA,envR),0,1);
+    var g=melodyGain*(1-state.duck*0.97*act); // кик утапливает мелодию до 65% глубины — без клипа
+    var v=crushed[i]*g;
+    track.L[idx]+=v;track.R[idx]+=v;
+    if(idx-delay>=0){var e=v*0.12;track.L[idx]+=e;track.R[idx]+=e;}
+    if(idx-delay*2>=0){var e2=v*0.06;track.L[idx]+=e2;track.R[idx]+=e2;}
+  }
+  var pdL=window.__padDryL,prR=window.__padDryR;
+  if(pdL&&prR&&pdL.length){
+    var i2,eA2=0,eR2=0;
+    for(i2=0;i2<pdL.length;i2++){
+      var dd=duck[i2]||0,rr=(window.__rupt||[])[i2]||0;
+      var d0p=Math.max(dd*2.2,rr*2.2);
+      eA2+=(d0p-eA2)/wAtk; if(eA2<0)eA2=0;
+      if(d0p<eR2)eR2=d0p; else eR2+=(d0p-eR2)/wRel;
+      var a2=clamp(Math.max(eA2,eR2),0,1);
+      var gp=(1-state.duck*0.97*a2); // пэд затуманивается киком вместе с мелодией
+      track.L[i2]+=pdL[i2]*gp;track.R[i2]+=prR[i2]*gp;
+    }
+  }
+  sendToReverb(crushed,0.08);
+}
+function spb(bpm){return 60/bpm;}
+function sendToReverbStereo(pair,amts){for(var c=0;c<2;c++)sendToReverb(pair[c],amts[c]);}
+
+// ---- микс: дакк мелодии учтён выше; далее мастер-цепочка ----
+function masterChain(L,R){
+  var n=L.length,i;
+  // HP 24 Гц
+  L=onepoleHP(L,24,SR);R=onepoleHP(R,24,SR);
+  // компрессор (RMS, мягкий)
+  var win=2048,rms=0,pos=0,circ=mkBuf(win),gr=1,grSm=1,thr=0.25,ratio=3.5,mk=1.3;
+  for(i=0;i<n;i++){
+    var news=Math.sqrt((L[i]*L[i]+R[i]*R[i])*0.5);rms-=circ[pos];circ[pos]=news;rms+=news;pos=(pos+1)%win;
+    var level=rms/win;
+    var over=level/thr;
+    var targetGr=over>1?Math.pow(over,(1-ratio)/ratio):1;
+    grSm+= (targetGr-grSm)*0.15;
+    var g=clamp(grSm*mk,0.15,1.3);
+    L[i]*=g;R[i]*=g;
+  }
+  // потолок tanh + нормализация
+  var peak=0;
+  for(i=0;i<n;i++){L[i]=Math.tanh(L[i]*1.1)*0.92;R[i]=Math.tanh(R[i]*1.1)*0.92;
+    var p=Math.max(Math.abs(L[i]),Math.abs(R[i]));if(p>peak)peak=p;}
+  if(peak>0.001){var k=0.95/peak;for(i=0;i<n;i++){L[i]*=k;R[i]*=k;}}
+  // КЛИП МАСТЕРА — сила в дБ: усиливаем на N дБ, жёстко режем верхушки на 1.0, отнимаем N дБ.
+  // Бас с самой большой амплитудой клипается сильнее всех — форма становится рвано-ровной
+  // и затмевает остальные частоты; мелодия в общей сумме проходит через тот же клип.
+  var cgm=state.clipM||0;
+  if(cgm>0.01){
+    var gg=Math.pow(10,cgm/20),CL=1.0,vi;
+    var knee=CL*0.7,dk=CL-knee; // мягкое колено: верхушки прижимаются экспоненциально, а не срезаются плоско
+    function softc(v){var av=Math.abs(v);if(av<=knee)return v;return Math.sign(v)*(knee+dk*(1-Math.exp(-(av-knee)/dk)));}
+    for(vi=0;vi<n;vi++){L[vi]=softc(L[vi]*gg)/gg;R[vi]=softc(R[vi]*gg)/gg;}
+  }
+  return [L,R];
+}
+
+// ---- лупы шумов: реальные записи с Wikimedia Commons, фолбэк — синтез ----
+var noiseLoops={vinyl:null,rain:null};
+var NOISE_URLS={
+  vinyl:["https://upload.wikimedia.org/wikipedia/commons/d/d8/Plattenknistern_record.ogg"],
+  rain:["https://upload.wikimedia.org/wikipedia/commons/8/8a/Sound_of_rain.ogg"]
+};
+function loadNoiseLoops(){
+  Object.keys(NOISE_URLS).forEach(function(k){
+    var url=NOISE_URLS[k][0];
+    fetch(url).then(function(r){return r.ok?r.arrayBuffer():null;}).catch(function(){return null;})
+      .then(function(ab){
+        if(!ab)return;
+        var c=ensureCtx();
+        return c.decodeAudioData(ab).then(function(dec){
+          var ch0=dec.getChannelData(0),ch1=(dec.numberOfChannels>1)?dec.getChannelData(1):ch0;
+          var nL=ch0.length,cf=Math.floor(0.05*dec.sampleRate);
+          var sm=new Float32Array(nL-cf),i;
+          for(i=0;i<sm.length;i++){
+            sm[i]=(i<cf)?(ch0[i]*(i/cf)+ch1[nL-cf+i]*(1-i/cf)):(ch0[i]+ch1[i])*0.5;
+          }
+          var sum=0;for(i=0;i<sm.length;i++)sum+=sm[i]*sm[i];
+          var r=Math.sqrt(sum/sm.length);
+          if(r>0){var g=0.1/r;for(i=0;i<sm.length;i++)sm[i]*=g;}
+          noiseLoops[k]=sm;
+        });
+      }).catch(function(){});
+  });
+}
+// ---- полный рендер ----
+// ---- состояние и интерфейс ----
+var state={mode:"trap",bpm:132,gate:120,duty:0.5,clip:0.6,drive:0,duck:0.6,
+  bits:11,dsf:2,melDrive:5,grit:true,clickKick:false,snare:true,cowbell:false,
+  note:9,clipM:5,midiAfterIntro:true,skipIntro:false,
+  midiPattern:null,melWave:"saw",bassEngine:"808",dirty:false,samples:{},sfontStatus:{},
+  nVinyl:-60,nRain:-60,smear:12,lofi:false,prevMelWave:null,prevDrive:null,rate:100,keepPitch:false };
+var trackBuf=null,info_=null,ctx=null,srcNode=null,playing=false,paused=false,startedAt=0,offset=0;
+var $=function(id){return document.getElementById(id);};
+function lcd(msg,dim){$("lcd").innerHTML=msg+(dim?'<span class="dim"><br>'+dim+"</span>":"");}
+
+function readUI(){
+  state.bpm=+$("kBpm").value;state.gate=+$("kGate").value;state.duty=+$("kDuty").value/100;
+  state.clip=+$("kClip").value/100;state.drive=+$("kDrive").value;state.duck=+$("kDuck").value/100;
+  state.bits=+$("kBits").value;state.dsf=+$("kDs").value;state.melDrive=+$("kMdrv").value;state.clipM=+$("kClipM").value;
+  state.nVinyl=+$("kVinyl").value;state.nRain=+$("kRain").value;state.smear=+$("kSmear").value;
+  state.rate=+$("kRate").value;state.keepPitch=$("tKeep").classList.contains("on");
+  state.grit=$("tGrit").classList.contains("on");state.clickKick=$("tClick").classList.contains("on");
+  state.snare=$("tSnare").classList.contains("on");
+  state.cowbell=$("tCow").classList.contains("on");
+  state.melWave=$("wRhodes").classList.contains("on")?"rhodes":($("wFont").classList.contains("on")?"font":($("wSynth").classList.contains("on")?"synth":"saw"));
+  state.bassEngine=$("b909").classList.contains("on")?"909":($("bRock").classList.contains("on")?"rock":($("bJazz").classList.contains("on")?"jazz":($("bAcou").classList.contains("on")?"acoustic":"808")));
+  state.note=+$("kNote").value;
+  state.midiAfterIntro=$("tMidiIntro").classList.contains("on");
+  state.skipIntro=$("tNoIntro").classList.contains("on");
+}
+["kBpm","kRate","kGate","kDuty","kClip","kDrive","kDuck","kBits","kDs","kMdrv","kClipM","kNote","kVinyl","kRain","kSmear"].forEach(function(id){
+  $(id).addEventListener("input",function(){
+    readUI();
+    $("vBpm").textContent=state.bpm;$("vRate").textContent="x"+(state.rate/100).toFixed(2)+" · "+Math.round(state.bpm*state.rate/100)+" БПМ";
+    $("vGate").textContent=state.gate+" Гц";
+    $("vDuty").textContent=Math.round(state.duty*100)+"%";
+    $("vClip").textContent=Math.round(state.clip*100)+"%";
+    $("vDrive").textContent=state.drive;
+    $("vDuck").textContent=Math.round(state.duck*100)+"%";
+    $("vBits").textContent=state.bits+" бит";
+    $("vDs").textContent="x"+state.dsf;
+    $("vMdrv").textContent=state.melDrive;
+    $("vNote").textContent="C C# D D# E F F# G G# A A# B".split(" ")[state.note];
+    $("vClipM").textContent=(+state.clipM).toFixed(1)+" дБ";
+    $("vVinyl").textContent=(state.nVinyl<=-60)?"выкл":state.nVinyl+" дБ";
+    $("vRain").textContent=(state.nRain<=-60)?"выкл":state.nRain+" дБ";
+    $("vSmear").textContent=state.smear.toFixed(1)+" кГц";
+    if(Math.abs(state.clipM-6.7)<0.05)lcd("СИКС СЕВЕН · клипмастер выровнен на 6.7 дБ","ровно и рвано");
+    if(radio.on){lcd("НАСТРОЙКИ СОХРАНЕНЫ","применятся со следующего трека");}
+  });
+});
+$("mTrap").onclick=function(){state.mode="trap";setModeBtn("trap");
+  $("tCow").classList.remove("off");$("tCow").classList.add("on");state.cowbell=$("tCow").classList.contains("on");
+  $("kBpm").value=132;readUI();$("vBpm").textContent="132";
+  $("modeHint").innerHTML='КЛАССИКА: разрывной кик, рваный бас-рулет, снейр на 2 и 4. Ковбелл — только по тумблеру.';
+  markDirty();};
+$("mFunk").onclick=function(){state.mode="funk";setModeBtn("funk");
+  $("tCow").classList.add("on");$("tCow").classList.add("off");state.cowbell=true;
+  $("kBpm").value=130;readUI();$("vBpm").textContent="130";
+  $("modeHint").innerHTML='<b>ФАНК:</b> бразильская сетка кика (тамборзау), ковбелл включается автоматически, кач 3+3+2. Тумблер КОВБЕЛЛ в авто-режиме.';
+  markDirty();};
+function setModeBtn(mode){if(mode!=="lofi"&&state.lofi)exitLofi();
+  ["mTrap","mFunk","mHard","mZud","mLoFi"].forEach(function(x){$(x).classList.toggle("on",x===(mode==="hard"?"mHard":mode==="zud"?"mZud":mode==="funk"?"mFunk":mode==="lofi"?"mLoFi":"mTrap"));});}
+function exitLofi(){
+  if(!state.lofi)return;
+  state.lofi=false;
+  $("kBpm").min="100";
+  if(+$("kBpm").value<100)$("kBpm").value=132;
+  if(state.melWave==="rhodes"){
+    state.melWave=state.prevMelWave||"saw";state.prevMelWave=null;
+    var wid=state.melWave==="font"?"wFont":(state.melWave==="synth"?"wSynth":"wSaw");
+    ["wSaw","wSynth","wFont","wRhodes"].forEach(function(x){$(x).classList.toggle("on",x===wid);});
+  }
+  if(state.prevDrive!=null){state.melDrive=state.prevDrive;state.prevDrive=null;}
+  $("kMdrv").value=state.melDrive;$("kMdrv").disabled=false;
+  $("lofiPanel").style.display="none";
+}
+function enterLofi(){
+  if(state.lofi)return;
+  state.lofi=true;
+  if(state.melWave!=="rhodes")state.prevMelWave=state.melWave;
+  state.prevDrive=state.melDrive;state.melDrive=0;
+  $("kMdrv").value=0;$("kMdrv").disabled=true;
+  $("kBpm").min="65";
+  if(+$("kBpm").value<65)$("kBpm").value=65;
+  ["wSaw","wSynth","wFont","wRhodes"].forEach(function(x){$(x).classList.toggle("on",x==="wRhodes");});
+  state.melWave="rhodes";
+  $("lofiPanel").style.display="";
+  if(!fontCache[FONT_INSTR.rhodes]){
+    lcd("ГРУЖУ ФОНТ: RHODES","lo-fi пианино FluidR3 из сети");
+    loadSoundfont(FONT_INSTR.rhodes).then(function(ok){
+      if(ok)ensureSamples("rhodes",PIANO_RANGE);
+      lcd(ok?"ФОНТ ГОТОВ: RHODES":"ФОНТ НЕ ЗАГРУЗИЛСЯ",ok?"lo-fi режим активен":"синтез-фолбэк без сэмплов");
+    });
+  }
+}
+$("mLoFi").onclick=function(){state.mode="lofi";enterLofi();setModeBtn("lofi");
+  $("modeHint").innerHTML='<b>LO-FI:</b> Rhodes-пианино, перегруз мелодии отключён, БПМ от 65. Шумы (винил/дождь) и смаз верхов — в панели LO-FI ниже.';
+  markDirty();};
+function setMidiBtn(which){["tMidiIntro","tNoIntro"].forEach(function(x){$(x).classList.toggle("on",x===which);});}
+$("tMidiIntro").onclick=function(){setMidiBtn("tMidiIntro");readUI();markDirty();};
+$("tNoIntro").onclick=function(){setMidiBtn("tNoIntro");readUI();markDirty();};
+$("mHard").onclick=function(){state.mode="hard";setModeBtn("hard");
+  $("tCow").classList.remove("on");state.cowbell=false;
+  $("kBpm").value=150;$("kClip").value=90;$("kDrive").value=4;readUI();$("vBpm").textContent="150";$("vClip").textContent="90%";$("vDrive").textContent="4";
+  $("modeHint").innerHTML='<b>ЭНЕРГИЧНОСТЬ:</b> рваный кик в хаф-тайм, дисторшн-бас, дроп — свои вариации бита. Слайдеры свободны — это режим, а не пресет.';
+  markDirty();};
+$("mZud").onclick=function(){state.mode="zud";setModeBtn("zud");
+  $("tCow").classList.remove("on");state.cowbell=false;
+  $("kBpm").value=140;readUI();$("vBpm").textContent="140";
+  $("modeHint").innerHTML='<b>КЛАССИКА2:</b> весь трек живёт в дроп-бите (кик 0-6-10-14, хаф-тайм снейр, 16-е хэты), а дроп получает собственный рваный ритм с перекатами.';
+  markDirty();};
+$("pShaman").onclick=function(){
+  var modes=["trap","funk","hard","zud"];
+  state.mode=modes[Math.floor(Math.random()*modes.length)];setModeBtn(state.mode);
+  var notes=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  state.note=Math.floor(Math.random()*12);$("kNote").value=state.note;
+  $("kBpm").value=124+Math.floor(Math.random()*29);
+  ["kGate","kDuty","kClip","kDrive","kDuck","kBits","kDs","kMdrv"].forEach(function(id){
+    var el=$(id),mn=+el.min,mx=+el.max,st=+el.step||1;
+    el.value=mn+st*Math.floor(Math.random()*Math.floor((mx-mn)/st+1));
+  });
+  $("tGrit").classList.toggle("on",Math.random()<0.6);
+  $("tClick").classList.toggle("on",Math.random()<0.4);
+  $("tSnare").classList.toggle("on",Math.random()<0.8);
+  $("tCow").classList.toggle("on",Math.random()<0.3);
+  setMidiBtn(Math.random()<0.6?"tMidiIntro":"tNoIntro");
+  readUI();
+  $("modeHint").innerHTML='<b>ШАМАН:</b> кости брошены — '+MODE_NAMES[state.mode]+', нота '+notes[state.note]+', БПМ '+state.bpm+'.';
+  lcd("ШАМАН БРОСИЛ КОСТИ",MODE_NAMES[state.mode].toUpperCase()+" · "+notes[state.note]+" · "+state.bpm+" БПМ — генерирую");
+  $("bPlay").click();
+};
+function preset(d,g,du,cl,dr,dk,bi,ds,md){return {d:d,g:g,du:du,cl:cl,dr:dr,dk:dk,bi:bi,ds:ds,md:md};}
+var presets={pDark:preset(132,90,60,40,2,40,12,2,3),pMid:preset(132,120,50,60,7,60,11,2,5),pHard:preset(140,165,38,80,13,85,10,3,6),pClean:preset(132,120,50,0,0,0,16,1,0)};
+["pDark","pMid","pHard","pClean"].forEach(function(id){
+  $(id).onclick=function(){
+    ["pDark","pMid","pHard","pClean"].forEach(function(x){$(x).classList.toggle("on",x===id);});
+    if(id==="pClean"){$("tGrit").classList.remove("on");}
+    var p=presets[id];
+    $("kBpm").value=p.d;$("kGate").value=p.g;$("kDuty").value=p.du;$("kClip").value=p.cl;
+    $("kDrive").value=p.dr;$("kDuck").value=p.dk;$("kBits").value=p.bi;$("kDs").value=p.ds;$("kMdrv").value=p.md;
+    readUI();["kBpm","kGate","kDuty","kClip","kDrive","kDuck","kBits","kDs","kMdrv"].forEach(function(x){$(x).dispatchEvent(new Event("input"));});
+    markDirty();
+  };
+});
+function markDirty(){if(radio.on){lcd("НАСТРОЙКИ СОХРАНЕНЫ","применятся со следующего трека");}}
+["wSaw","wSynth","wFont","wRhodes"].forEach(function(id){
+  $(id).onclick=function(){
+    ["wSaw","wSynth","wFont","wRhodes"].forEach(function(x){$(x).classList.toggle("on",x===id);});
+    state.melWave=(id==="wRhodes")?"rhodes":((id==="wFont")?"font":((id==="wSynth")?"synth":"saw"));
+    markDirty();
+    if(state.melWave==="font"&&!fontCache[FONT_INSTR.piano]){
+      lcd("ГРУЖУ ФОНТ: РОЯЛЬ","реальные сэмплы FluidR3 из сети");
+      loadSoundfont(FONT_INSTR.piano).then(function(ok){
+        lcd(ok?"ФОНТ ГОТОВ: РОЯЛЬ":"ФОНТ НЕ ЗАГРУЗИЛСЯ",ok?"применится со следующего трека":"синтез-фолбэк без сэмплов");
+      });
+    }
+    if(state.melWave==="rhodes"&&!fontCache[FONT_INSTR.rhodes]){
+      lcd("ГРУЖУ ФОНТ: RHODES","lo-fi пианино FluidR3 из сети");
+      loadSoundfont(FONT_INSTR.rhodes).then(function(ok){
+        lcd(ok?"ФОНТ ГОТОВ: RHODES":"ФОНТ НЕ ЗАГРУЗИЛСЯ",ok?"применится со следующего трека":"синтез-фолбэк без сэмплов");
+      });
+    }
+  };
+});
+["tGrit","tClick","tSnare","tCow"].forEach(function(id){
+  $(id).onclick=function(){
+    if(id==="tCow"&&state.mode==="funk")return;
+    $(id).classList.toggle("on");markDirty();
+  };
+});
+// MIDI-вход
+$("midiFile").addEventListener("change",function(e){
+  var f=e.target.files[0];if(!f)return;
+  var fr=new FileReader();
+  fr.onload=function(){
+    var bytes=new Uint8Array(fr.result);
+    var pat=parseMIDI(bytes);
+    if(!pat){lcd("MIDI НЕ РАСПОЗНАН","проверь файл");return;}
+    if(pat.bars>16){pat.events=pat.events.filter(function(x){return x.st<16*16;});pat.bars=16;pat.truncated=true;}
+    state.midiPattern=pat;
+    $("midiName").textContent=f.name+" · "+pat.bars+" такт(а) · "+pat.events.length+" нот";
+    lcd("MIDI ЗАГРУЖЕН: ПАТТЕРН "+pat.bars+" ТАКТОВ","лупится по всему треку · применится со след. трека");
+  };
+  fr.readAsArrayBuffer(f);
+});
+["dragover","dragenter"].forEach(function(ev){$("midiFile").addEventListener(ev,function(e){e.preventDefault();});});
+$("midiFile").addEventListener("drop",function(e){
+  e.preventDefault();
+  if(!e.dataTransfer.files.length)return;
+  var f2=e.dataTransfer.files[0];
+  var fr2=new FileReader();
+  fr2.onload=function(){
+    var bytes2=new Uint8Array(fr2.result);
+    var pat2=parseMIDI(bytes2);
+    if(!pat2){lcd("ЭТО НЕ MIDI-ФАЙЛ","или битый .mid");return;}
+    if(pat2.bars>16){pat2.events=pat2.events.filter(function(x){return x.st<16*16;});pat2.bars=16;pat2.truncated=true;}
+    state.midiPattern=pat2;
+    $("midiName").textContent=f2.name+" · "+pat2.bars+" такт(а) · "+pat2.events.length+" нот";
+    lcd("MIDI ЗАГРУЖЕН: ПАТТЕРН "+pat2.bars+" ТАКТОВ","лупится по всему треку · применится со след. трека");
+  };
+  fr2.readAsArrayBuffer(f2);
+});
+
+// ---- плеер и радио-конвейер ----
+var masterGain=null;
+function ensureCtx(){if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();if(!masterGain){masterGain=ctx.createGain();masterGain.gain.value=1;masterGain.connect(ctx.destination);}return ctx;}
+function infoText(){return info_.totalBars+" тактов · "+state.bpm+" БПМ · "+MODE_NAMES[state.mode];}
+var radio={on:false,next:null,nextInfo:null,genBusy:false,gapTimer:null,tick:null,trackNo:0};
+function playTrack(buf,info){
+  var c=ensureCtx();c.resume();
+  if(srcNode){try{srcNode.onended=null;srcNode.stop();}catch(e){}}
+  srcNode=c.createBufferSource();
+  srcNode.buffer=buf;
+  srcNode.connect(masterGain);masterGain.gain.cancelScheduledValues(c.currentTime);masterGain.gain.setValueAtTime(1,c.currentTime);
+  srcNode.start(0);
+  trackBuf=buf;info_=info;playing=true;paused=false;offset=0;startedAt=c.currentTime;
+  radio.trackNo++;radio.next=null;radio.genBusy=false;
+  lcd("ТРЕК №"+radio.trackNo+" · ИГРАЕТ",infoText());
+  srcNode.onended=function(){
+    if(!radio.on){playing=false;offset=0;lcd("СТОП","нажми ИГРАТЬ для нового эфира");return;}
+    lcd("СМЕНА ТРЕКА","пауза 2 секунды");
+    radio.gapTimer=setTimeout(nextTrack,2000);
+  };
+}
+function nextTrack(){
+  if(!radio.on)return;
+  if(radio.gapTimer){clearTimeout(radio.gapTimer);radio.gapTimer=null;}
+  if(radio.next){var b=radio.next,inf=radio.nextInfo;radio.next=null;radio.genBusy=false;playTrack(b,inf);return;}
+  if(radio.genBusy){setTimeout(nextTrack,400);return;}
+  radio.genBusy=true;
+  renderTrack(function(buf,info){playTrack(buf,info);});
+}
+function radioLoop(){
+  if(!radio.on||!playing||paused||radio.next||radio.genBusy||!trackBuf||!ctx)return;
+  var rem=trackBuf.duration-(ctx.currentTime-startedAt);
+  if(rem<=20){
+    radio.genBusy=true;
+    applyRandoms();
+    lcd("ГОТОВЛЮ СЛЕДУЮЩИЙ ТРЕК","сейчас играет №"+radio.trackNo+" · осталось "+Math.max(0,Math.ceil(rem))+" с");
+    renderTrack(function(buf,info){
+      radio.next=buf;radio.nextInfo=info;radio.genBusy=false;
+      lcd("ТРЕК №"+radio.trackNo+" · ИГРАЕТ",infoText()+" · след. готов");
+    });
+  }
+}
+$("bPlay").onclick=function(){
+  if(radio.on&&playing)return;
+  if(radio.gapTimer){clearTimeout(radio.gapTimer);radio.gapTimer=null;}
+  radio.on=true;radio.trackNo=0;radio.next=null;radio.genBusy=true;
+  applyRandoms();
+  renderTrack(function(buf,info){playTrack(buf,info);});
+  if(!radio.tick)radio.tick=setInterval(radioLoop,500);
+};
+$("bStop").onclick=function(){
+  radio.on=false;radio.next=null;radio.genBusy=false;
+  if(radio.gapTimer){clearTimeout(radio.gapTimer);radio.gapTimer=null;}
+  if(srcNode){srcNode.onended=null;
+    try{if(ctx&&masterGain){var t0s=ctx.currentTime;masterGain.gain.cancelScheduledValues(t0s);masterGain.gain.setValueAtTime(masterGain.gain.value,t0s);masterGain.gain.linearRampToValueAtTime(0.0001,t0s+0.03);}}catch(e){}
+    setTimeout(function(){try{if(srcNode)srcNode.stop();}catch(e){}if(ctx&&masterGain){var t1s=ctx.currentTime;masterGain.gain.cancelScheduledValues(t1s);masterGain.gain.setValueAtTime(1,t1s);}srcNode=null;},40);}
+  playing=false;paused=false;offset=0;
+  if(ctx)ctx.resume();
+  lcd("СТОП","нажми ИГРАТЬ для нового эфира");
+};
+
+// ---- WAV ----
+function toWav(L,R){
+  var n=L.length,bytes=44+n*4,buf=new ArrayBuffer(bytes),dv=new DataView(buf);
+  function wstr(o,s){for(var i=0;i<s.length;i++)dv.setUint8(o+i,s.charCodeAt(i));}
+  wstr(0,"RIFF");dv.setUint32(4,bytes-8,true);wstr(8,"WAVE");wstr(12,"fmt ");
+  dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,2,true);
+  dv.setUint32(24,SR,true);dv.setUint32(28,SR*4,true);dv.setUint16(32,4,true);dv.setUint16(34,16,true);
+  wstr(36,"data");dv.setUint32(40,n*4,true);
+  var o=44;
+  for(var i=0;i<n;i++){
+    dv.setInt16(o,clamp(L[i],-1,1)*32767,true);o+=2;
+    dv.setInt16(o,clamp(R[i],-1,1)*32767,true);o+=2;
+  }
+  return new Blob([buf],{type:"audio/wav"});
+}
+function download(blob,name){
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},4000);
+}
+$("bMp3").onclick=function(){
+  if(!trackBuf)return;
+  lcd("СОХРАНЕНИЕ...","пробую MP3, иначе WAV");
+  var wav=toWav(trackBuf.getChannelData(0),trackBuf.getChannelData(1));
+  var s=document.createElement("script");
+  s.src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js";
+  var done=false;
+  s.onload=function(){
+    try{
+      var mp=new lamejs.Mp3Encoder(2,SR,192),chunks=[],samples=trackBuf.length;
+      var l=trackBuf.getChannelData(0),r=trackBuf.getChannelData(1);
+      var li=new Int16Array(1152),ri=new Int16Array(1152);
+      for(var i=0;i<samples;i+=1152){
+        for(var j=0;j<1152&&i+j<samples;j++){li[j]=l[i+j]*32767;ri[j]=r[i+j]*32767;}
+        var d=mp.encodeBuffer(li,ri);if(d.length)chunks.push(d);
+      }
+      var d2=mp.flush();if(d2.length)chunks.push(d2);
+      download(new Blob(chunks,{type:"audio/mpeg"}),"hydra_track.mp3");
+      done=true;lcd("MP3 СОХРАНЕН","192 кбит/с");
+    }catch(e){}
+  };
+  s.onerror=function(){download(wav,"hydra_track.wav");lcd("WAV СОХРАНЕН","сеть недоступна — запасной формат");};
+  document.head.appendChild(s);
+  setTimeout(function(){if(!done){download(wav,"hydra_track.wav");lcd("WAV СОХРАНЕН","сеть недоступна — запасной формат");}},6000);
+};
+
+// ---- кнопки волны и движка (предзагрузка саундфонта при выборе) ----
+function bindPick(ids,cb){ids.forEach(function(id){$(id).addEventListener("click",function(){
+  ids.forEach(function(x){$(x).classList.toggle("on",x===id);});
+  readUI();state.dirty=true;
+  if(cb)cb();
+});});}
+bindPick(["b808","b909","bRock","bJazz","bAcou"],function(){
+  try{ensureCtx();}catch(e){}
+  if(!fontEngineOn())return;
+  var e=state.bassEngine;
+  if(!fontCache[FONT_INSTR[e]]){
+    lcd("ГРУЖУ ФОНТ: "+e.toUpperCase(),"реальные сэмплы FluidR3 · кик и снейр тоже станут реальными");
+    loadSoundfont(FONT_INSTR[e]).then(function(ok){
+      lcd(ok?"ФОНТ ГОТОВ: "+e.toUpperCase():"ФОНТ НЕ ЗАГРУЗИЛСЯ",ok?"применится со следующего трека":"синтез-фолбэк без сэмплов");
+    });
+  }
+});
+
+// ---- генерация трека (конвейер радио) ----
+function applyRandoms(){
+  if($("tRBpm").classList.contains("on")){
+    // мягкий дрейф: максимум ±10 от текущего, рамка 106–140.
+    // Крутить сильно может только человек вручную слайдером.
+    var cur=state.bpm;
+    var mnB=state.mode==="lofi"?65:106, mxB=state.mode==="lofi"?100:140;
+    if(cur<mnB)cur=mnB; if(cur>mxB)cur=mxB;
+    var lo=Math.max(mnB,cur-10), hi=Math.min(mxB,cur+10);
+    state.bpm=lo+Math.floor(Math.random()*(hi-lo+1));
+    $("kBpm").value=state.bpm;
+  }
+  if($("tRNote").classList.contains("on")){
+    state.note=Math.floor(Math.random()*12);
+    $("kNote").value=state.note;
+  }
+  if($("tRIntro").classList.contains("on")){
+    state.skipIntro=Math.random()<0.5;
+    setMidiBtn(state.skipIntro?"tNoIntro":"tMidiIntro");
+  }
+  readUI();
+  $("vBpm").textContent=state.bpm;$("vRate").textContent="x"+(state.rate/100).toFixed(2)+" · "+Math.round(state.bpm*state.rate/100)+" БПМ";
+  $("vNote").textContent="C C# D D# E F F# G G# A A# B".split(" ")[state.note];
+}
+function loadNeeds(){
+  var need=[];
+  if(state.melWave==="font")need.push("piano");
+  if(state.melWave==="rhodes")need.push("rhodes");
+  if(fontEngineOn())need.push(state.bassEngine,"drums");
+  return new Promise(function(res){
+    if(!need.length)return res();
+    lcd("ГРУЖУ ФОНТ...","реальные сэмплы FluidR3 из CDN");
+    var jobs=[],k;
+    for(k=0;k<need.length;k++){
+      if(need[k]==="drums")jobs.push(loadDrumKit());
+      else (function(key){jobs.push(loadSoundfont(FONT_INSTR[key]).then(function(ok){
+        return ok?ensureSamples(key,(key==="piano"||key==="rhodes")?PIANO_RANGE:BASS_RANGE):false;
+      }));})(need[k]);
+    }
+    Promise.all(jobs).then(function(){res();}).catch(function(){lcd("ФОНТ НЕ ЗАГРУЗИЛСЯ","синтез-фолбэк без сэмплов");res();});
+  });
+}
+
+// ---- изменение скорости готового микса ----
+function resamplePitch(L,R,r){ // честный питч: длина /r, высота ×r — как замедленная плёнка
+  var n=L.length,outN=Math.max(1,Math.floor(n/r)),oL=mkBuf(outN),oR=mkBuf(outN),i;
+  for(i=0;i<outN;i++){var p=i*r,i0=Math.floor(p),f=p-i0;
+    oL[i]=L[i0]*(1-f)+(L[i0+1]||0)*f;oR[i]=R[i0]*(1-f)+(R[i0+1]||0)*f;}
+  return [oL,oR];
+}
+function stretchKeep(L,R,r){
+  // WSOLA: окно 50 мс, синтез-гоп = половина окна, поиск совпадения фазы ±35% гопа.
+  // Нормализованная кросс-корреляция (грубый проход + точная доводка),
+  // снап на транзиенты (удары не расползаются), OLA с окном Ханна и нормировкой перекрытия.
+  var n=L.length;
+  var N=Math.floor(SR*0.05),Hs=Math.floor(N/2),Ha=Math.max(1,Math.round(Hs*r));
+  var maxS=Math.floor(Ha*0.35);
+  var outN=Math.floor(n/r)+2*N;
+  var oL=mkBuf(outN),oR=mkBuf(outN),wS=mkBuf(outN);
+  var i,j,win=[];for(j=0;j<N;j++)win.push(0.5-0.5*Math.cos(TAU*j/N));
+  var on=mkBuf(n),fe=0,se=0; // карта транзиентов: быстрый EMA против медленного
+  for(i=0;i<n;i++){var x=L[i];fe=fe*0.98+x*x*0.02;se=se*0.999+x*x*0.001;on[i]=(fe>se*6&&fe>1e-7)?1:0;}
+  var corrN=N-Hs,stride=Math.max(1,Math.round(corrN/8));
+  var ta=0,ts=0,d=0;
+  if(n<=corrN+4)return [L,R];
+  while(ts+N<outN-1&&ta<n-N-1){
+    var c0=ta+d;
+    if(ts>0){
+      var rs=ts-Hs,bc=-1e9,bo=0,off;
+      for(off=-maxS;off<=maxS;off++){ // грубый поиск с шагом corrN/8
+        var q=c0+off;if(q<0||q+corrN>=n)continue;
+        var cc=0,eo=0,ei=0;
+        for(j=0;j<corrN;j+=stride){var vo=oL[rs+j],vi=L[q+j];cc+=vo*vi;eo+=vo*vo;ei+=vi*vi;}
+        var nc=cc/(Math.sqrt(eo*ei)+1e-12);
+        if(nc>bc){bc=nc;bo=off;}
+      }
+      d+=bo;if(d>2*maxS)d=2*maxS;if(d<-2*maxS)d=-2*maxS;
+      c0=ta+d;
+      var bc2=bc-1e-9,bo2=0; // точная доводка: всё окно грубого поиска по сэмплам
+      for(off=Math.max(-stride,bo-stride);off<=Math.min(maxS,bo+stride);off++){
+        var q2=c0+off;if(q2<0||q2+corrN>=n)continue;
+        var cc2=0,eo2=0,ei2=0;
+        for(j=0;j<corrN;j++){var v2=oL[rs+j],u2=L[q2+j];cc2+=v2*u2;eo2+=v2*v2;ei2+=u2*u2;}
+        var nc2=cc2/(Math.sqrt(eo2*ei2)+1e-12)-0.003*Math.abs(off)/maxS; // регуляризация к нулю: не даёт тону плыть
+        if(nc2>bc2){bc2=nc2;bo2=off;}
+      }
+      d+=bo2;c0=ta+d;
+    }
+    if(c0<0)c0=0;if(c0+N>=n)c0=n-N-1;if(c0<0)c0=0;
+    var snp=Math.floor(maxS/2); // снап на транзиент рядом
+    for(var k=-snp;k<=snp;k++){var qq=c0+k;if(qq>=0&&qq<n&&on[qq]){c0=qq;break;}}
+    d=c0-ta;
+    for(j=0;j<N;j++){
+      if(ts+j>=outN)break;
+      var g=win[j];
+      oL[ts+j]+=L[c0+j]*g;oR[ts+j]+=R[c0+j]*g;wS[ts+j]+=g;
+    }
+    ta+=Ha;ts+=Hs;
+  }
+  // нормировка перекрытия: в устойчивых местах сумма окон Ханна = 1 точно,
+  // делим только там, где покрытие выпало (обрыв входа) — щелчков нет
+  for(i=0;i<outN;i++){var wv=wS[i];if(wv>0.9){oL[i]/=wv;oR[i]/=wv;}}
+  return [oL,oR];
+}
+
+function renderTrack(cb){
+  readUI();
+  try{ensureCtx();}catch(e){}
+  try{loadNoiseLoops();}catch(e){}
+  loadNeeds().then(function(){
+    lcd("РЕНДЕР...","сборка аранжировки · "+state.bpm+" БПМ");
+    setTimeout(function(){
+      try{
+        initReverb(SR);
+        var res=buildArrangement(state.mode,state.bpm,state.cowbell,state.snare);
+        if(window.__melDry)mixMelody(res.track,res.duck,window.__melDry,1,state,state.bpm);
+        reverbDecay(res.track,Math.floor(SR*2.2));
+        var out=masterChain(res.track.L,res.track.R);
+        if(state.lofi){
+          var chF;
+          for(chF=0;chF<2;chF++){
+            out[chF]=onepoleLP(onepoleLP(onepoleLP(out[chF],state.smear*1000,SR),state.smear*1350,SR),state.smear*1800,SR); // крутой трёхполюсный смаз
+            out[chF]=onepoleLP(onepoleLP(out[chF],11000,SR),11000,SR); // совсем высокие — жёсткий срез на 11 кГц
+          }
+          var lv=(state.nVinyl<=-60)?0:Math.pow(10,state.nVinyl/20);
+          var lr=(state.nRain<=-60)?0:Math.pow(10,state.nRain/20);
+          if(lv>0&&lr>0){var fN=Math.max(lv,lr)/Math.sqrt(lv*lv+lr*lr);lv*=fN;lr*=fN;} // усреднение: суммарно как один шум на полную
+          if(lv>0||lr>0){
+            var iN,nN=out[0].length,phR=Math.random()*6.2832;
+            var loopV=noiseLoops.vinyl,loopR=noiseLoops.rain;
+            var pk0=0,pk1=0,pk2=0,pk3=0,pk4=0,pk5=0,pk6=0,popA=0,popV=0,duckA=0;
+            var vFr=(state.nVinyl<=-60)?0:Math.min(1,(state.nVinyl+60)/42); // позиция ползунка 0..1
+            for(iN=0;iN<nN;iN++){
+              var nz=0;
+              if(lv>0){
+                if(loopV){nz+=loopV[iN%loopV.length]*2.2*lv;}
+                else{
+                  nz+=(Math.random()*2-1)*0.2*lv; // шипение винила (громче)
+                  if(popA<=0&&Math.random()<lv*0.0003){popA=lv*(0.35+Math.random()*0.6);popV=(Math.random()<0.5?-1:1)*popA;}
+                  if(popA>0){nz+=popV;popA*=0.82;if(popA<0.002)popA=0;}
+                }
+              }
+              if(lr>0){
+                if(loopR){nz+=loopR[iN%loopR.length]*1.6*lr;}
+                else{
+                  var wn=Math.random()*2-1; // розовый шум (Paul Kellet)
+                  pk0=0.99886*pk0+wn*0.0555179;pk1=0.99332*pk1+wn*0.0750759;
+                  pk2=0.96900*pk2+wn*0.1538520;pk3=0.86650*pk3+wn*0.3104856;
+                  pk4=0.55000*pk4+wn*0.5329522;pk5=-0.7616*pk5-wn*0.0168980;
+                  var pink=(pk0+pk1+pk2+pk3+pk4+pk5+pk6+wn*0.5362)*0.11;pk6=wn*0.115926;
+                  var breath=0.72+0.28*Math.sin(2*Math.PI*0.07*(iN/SR)+phR);
+                  nz+=pink*0.42*lr*breath;
+                }
+              }
+              var vE=0;
+              if(lv>0){if(loopV)vE=Math.abs(loopV[iN%loopV.length]);else vE=(popA>0.02)?1:0;}
+              duckA=duckA*0.92+vE*0.08; // огибающая ~2 мс следит за треском
+              var gD=1-0.4*vFr*duckA; // винил «врезается»: на пиках щелчков музыка уходит до −8 дБ, остаток всегда есть
+              out[0][iN]=out[0][iN]*gD+nz;out[1][iN]=out[1][iN]*gD+nz;
+            }
+          }
+        }
+        var c=ensureCtx();
+        // де-клик краёв трека: вход 20 мс, хвост 300 мс — ничего не обрывается
+        var fsIn=Math.floor(SR*0.02),feOut=Math.min(Math.floor(SR*0.3),out[0].length>>1),z;
+        for(z=0;z<fsIn;z++){out[0][z]*=z/fsIn;out[1][z]*=z/fsIn;}
+        for(z=0;z<feOut;z++){var ke=out[0].length-1-z,fk=z/feOut;out[0][ke]*=fk;out[1][ke]*=fk;}
+        var r=(state.rate||100)/100;
+        if(Math.abs(r-1)>0.005){
+          lcd("СКОРОСТЬ x"+r.toFixed(2),state.keepPitch?"меняю темп · тональность на месте":"меняю темп и тональность");
+          out=(state.keepPitch)?stretchKeep(out[0],out[1],r):resamplePitch(out[0],out[1],r);
+        }
+        var buf=c.createBuffer(2,out[0].length,SR);
+        buf.copyToChannel(out[0],0);buf.copyToChannel(out[1],1);
+        state.dirty=false;
+        cb(buf,res);
+      }catch(e){radio.genBusy=false;lcd("ОШИБКА РЕНДЕРА",String(e&&e.message||e));}
+    },40);
+  });
+}
+$("bSet").onclick=function(){$("settings").classList.toggle("hidden");};
+["tRBpm","tRIntro","tRNote","tKeep"].forEach(function(id){
+  $(id).onclick=function(){$(id).classList.toggle("on");};
+});
+readUI();
+lcd("HYDRA РАДИО","настрой радио — и жми ИГРАТЬ");
+</script>
+</body>
+</html>
