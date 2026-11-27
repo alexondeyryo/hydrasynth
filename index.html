@@ -818,7 +818,10 @@ function buildArrangement(mode,bpm,cowbellOn,snareOn){
   while(totalBars_*spbBar<target&&pairs<8){
     pairs++;
     sections.push({name:"verse",bars:8});totalBars_+=8;
-    if(!bridgePlaced&&Math.random()<0.35){sections.push({name:"bridge",bars:8});bridgePlaced=true;totalBars_+=8;}
+    if(!bridgePlaced&&Math.random()<0.35){
+      sections.push({name:"bridge",bars:8});bridgePlaced=true;totalBars_+=8;
+      sections.push({name:"verse",bars:8});totalBars_+=8; // бридж+куплет = 16 тактов: фаза паттерна не сбивается, у всех дропов одни ноты и бит
+    }
     sections.push({name:"drop",bars:8,variant:pick(["oct","cow","plain"])});totalBars_+=8;
   }
   if(!bridgePlaced&&Math.random()<0.6){sections.push({name:"bridge",bars:8});bridgePlaced=true;totalBars_+=8;}
@@ -851,6 +854,19 @@ function buildArrangement(mode,bpm,cowbellOn,snareOn){
     if(!melByStep[e.st])melByStep[e.st]=[];
     if(melByStep[e.st].length<3)melByStep[e.st].push(e);
   });
+  // последний дроп: только его последняя группа нот может сместиться на октаву вверх
+  var lastDropIdx=-1,lastDropBar=-1,lastDropSt=-1,ci,accB=0;
+  for(ci=0;ci<sections.length;ci++){if(sections[ci].name==="drop")lastDropIdx=ci;}
+  if(lastDropIdx>=0){
+    var introOff0=(midiUsed&&state.midiAfterIntro)?introBars:0;
+    for(ci=0;ci<lastDropIdx;ci++)accB+=sections[ci].bars;
+    var dEnd=accB+sections[lastDropIdx].bars,b2,s2;
+    for(b2=dEnd-1;b2>=accB&&lastDropBar<0;b2--){
+      for(s2=15;s2>=0;s2--){
+        if(melByStep[(((b2-introOff0)%patBars+patBars)%patBars)*16+s2]){lastDropBar=b2;lastDropSt=s2;break;}
+      }
+    }
+  }
   var totalBars=0;
   sections.forEach(function(s){totalBars+=s.bars;});
   var totalSamples=Math.ceil((totalBars*4*spb+2.2)*SR);
@@ -869,6 +885,10 @@ function buildArrangement(mode,bpm,cowbellOn,snareOn){
       if(state.lofi)isDrop=false; // LO-FI: ровная ткань, дроп не выпрыгивает
       var introOff=(midiUsed&&state.midiAfterIntro)?introBars:0;
       var isBridge=(sec.name==="bridge");
+      // у всех дропов — одинаковый бит: случай в дропах определяется фазой паттерна, а не положением в треке
+      var rseed=isDrop?(((bar0-introOff)%patBars+patBars)%patBars):bar0;
+      function prnd(k){var s=(Math.imul(rseed+0x9E37,0x85EBCA77)^Math.imul(k+1,0xC2B2AE35))>>>0;
+        s^=s>>>16;s=Math.imul(s,0x7FEB352D)>>>0;s^=s>>>15;s=Math.imul(s,0x846CA68B)>>>0;s^=s>>>16;return s/4294967296;}
       // ---- барабаны ----
       var ksteps;
       if(mode==="hard") ksteps=isDrop?[[0,4,8,12,14],[0,4,8,12],[0,4,7,8,12,14],[0,4,8,10,12]][bi%4]:[0,4,8,12];
@@ -887,21 +907,21 @@ function buildArrangement(mode,bpm,cowbellOn,snareOn){
        for(var bs=0;bs<16;bs++){
          var absB=((bar0-introOff)%patBars+patBars)%patBars*16+bs;
          var mb=melByStep[absB];
-         if(mb&&mb.length&&(bs%2===0||Math.random()<0.3))onsets.push({st:bs,me:mb[0]});
+         if(mb&&mb.length&&(bs%2===0||prnd(101+bs)<0.3))onsets.push({st:bs,me:mb[0]});
        }
        if(isIntro){onsets=onsets.filter(function(o){return o.st===0||o.st===8;});}
        if(!onsets.length)onsets=[{st:0,me:null}];
-       if(!isIntro&&Math.random()<0.7)onsets.push({st:14,me:null});
+       if(!isIntro&&prnd(102)<0.7)onsets.push({st:14,me:null});
        onsets.sort(function(a,b2){return a.st-b2.st;});
        var nextChord=chords[(bar0+1)%4];
        onsets.forEach(function(bo,ix){
          var last=(ix===onsets.length-1);
          var semi=chord-12;
          if(last)semi=nextChord-12-1;               // подводка снизу к следующему аккорду
-         else if(bo.me&&Math.random()<0.75){
+         else if(bo.me&&prnd(103+ix)<0.75){
            semi=chord-12+clamp(bo.me.n-chord,-3,3); // контур мелодии, сжатый до ±3
-           if(Math.random()<0.2)semi-=7;            // квинта вниз
-         }else if(Math.random()<0.25)semi-=7;
+           if(prnd(104+ix)<0.2)semi-=7;            // квинта вниз
+         }else if(prnd(105+ix)<0.25)semi-=7;
          var hz=noteHz(semi);
          while(hz>110)hz/=2;                        // жёсткий потолок регистра 110 Гц
          var nxt=onsets[ix+1]?onsets[ix+1].st:16;
@@ -916,13 +936,13 @@ function buildArrangement(mode,bpm,cowbellOn,snareOn){
       if(snareOn&&!isIntro){
         if(isDrop){
           place(track,duckEnv,barT+8*step,drumSnare(1,0.5),0.95,"L");
-          if(Math.random()<0.7)place(track,duckEnv,barT+14*step,drumSnare(0.4,0.5),0.45,"L");
+          if(prnd(106)<0.7)place(track,duckEnv,barT+14*step,drumSnare(0.4,0.5),0.45,"L");
           if(mode==="zud")place(track,duckEnv,barT+12*step,drumSnare(0.3,0.4),0.35,"L");
         }else if(mode==="hard"||mode==="zud"){
           place(track,duckEnv,barT+8*step,drumSnare(1,0.5),0.9,"L");
         }else{
         [4,12].forEach(function(st,ix){
-          var lvl=[1,0.8,0.65][Math.floor(Math.random()*3)];
+          var lvl=[1,0.8,0.65][Math.floor(prnd(107+ix)*3)];
           place(track,duckEnv,barT+st*step,drumSnare(lvl,0.5),0.75,"L");
         });
         }
@@ -937,24 +957,24 @@ function buildArrangement(mode,bpm,cowbellOn,snareOn){
       if(!isIntro){
         if(isDrop){
           for(var hs=0;hs<16;hs++){
-            var lv=0.3+((hs%4===0)?0.25:0.08)+Math.random()*0.15;
+            var lv=0.3+((hs%4===0)?0.25:0.08)+prnd(108+hs)*0.15;
             place(track,duckEnv,barT+hs*step,drumHat(false,lv),0.55,"L");
           }
           place(track,duckEnv,barT+6*step,drumHat(true,0.6),0.6,"L");
         }else if(mode==="hard"){
           for(var hs=1;hs<16;hs+=2){
-            var lv=0.4+Math.random()*0.3;
+            var lv=0.4+prnd(109+hs)*0.3;
             place(track,duckEnv,barT+hs*step,drumHat(false,lv),0.55,"L");
           }
         }else if(mode==="zud"){
           for(var hs=0;hs<16;hs++){
-            var lv=0.3+((hs%4===0)?0.22:0.08)+Math.random()*0.12;
+            var lv=0.3+((hs%4===0)?0.22:0.08)+prnd(110+hs)*0.12;
             place(track,duckEnv,barT+hs*step,drumHat(false,lv),0.55,"L");
           }
           place(track,duckEnv,barT+6*step,drumHat(true,0.6),0.6,"L");
         }else{
           for(var hs=0;hs<16;hs+=2){
-            var lv=0.4+Math.random()*0.3;
+            var lv=0.4+prnd(111+hs)*0.3;
             place(track,duckEnv,barT+hs*step,drumHat(false,lv),0.55,"L");
           }
           place(track,duckEnv,barT+14*step,drumHat(true,0.6),0.6,"L");
@@ -965,7 +985,7 @@ function buildArrangement(mode,bpm,cowbellOn,snareOn){
       var cowOn=(mode==="funk")?true:state.cowbell;
       if(cowOn&&!isIntro){
         [0,3,6,8,11,14].forEach(function(st){
-          if(Math.random()<0.8){
+          if(prnd(112+st)<0.8){
             var cg=(mode==="funk"&&(st===0||st===6||st===11))?0.55:0.3;
             place(track,duckEnv,barT+st*step,drumCow(0.8),cg,"L");
           }
@@ -973,7 +993,7 @@ function buildArrangement(mode,bpm,cowbellOn,snareOn){
       }
       // мелодия: в интро — тихая и разреженная, со 2-го такта
       {
-        var oct=0; // октавные сдвиги дропа убраны: мелодия всегда одна
+        var oct=0; // мелодия во всех дропах одна и та же — сдвиг октавы возможен только в последнем дропе
         var mg=melodyGain;
         if(isIntro){mg=melodyGain*0.5;}
         for(var st2=0;st2<16;st2++){
@@ -983,8 +1003,9 @@ function buildArrangement(mode,bpm,cowbellOn,snareOn){
           if(!marr)continue;
           if(isIntro&&st2%2===1&&Math.random()<0.5)continue;
           marr.forEach(function(me,mi){
+            var o=(si===lastDropIdx&&bar0===lastDropBar&&st2===lastDropSt)?12:0; // последняя группа нот последнего дропа — октавой вверх
             var mlen=Math.min(me.len,16-st2)*step;
-            place(track,duckEnv,barT+st2*step,melVoice(noteHz(me.n+oct),mlen),mg*(mi===0?1:0.6),"M");
+            place(track,duckEnv,barT+st2*step,melVoice(noteHz(me.n+oct+o),mlen),mg*(mi===0?1:0.6),"M");
           });
         }
       }
@@ -1179,10 +1200,26 @@ function loadNoiseLoops(){
         var c=ensureCtx();
         return c.decodeAudioData(ab).then(function(dec){
           var ch0=dec.getChannelData(0),ch1=(dec.numberOfChannels>1)?dec.getChannelData(1):ch0;
-          var nL=ch0.length,cf=Math.floor(0.05*dec.sampleRate);
-          var sm=new Float32Array(nL-cf),i;
+          var nL=ch0.length,i;
+          var mono=new Float32Array(nL);
+          for(i=0;i<nL;i++)mono[i]=(ch0[i]+ch1[i])*0.5;
+          // срезаем тишину по краям: в записи дождя по краям тихий хвост ~0.7 с — между повторами лупа слышна пауза
+          var pk=0;for(i=0;i<nL;i++){var aa=Math.abs(mono[i]);if(aa>pk)pk=aa;}
+          if(pk>0){
+            var thr=pk*0.05,lo=0,hi=nL;
+            while(lo<nL&&Math.abs(mono[lo])<thr)lo++;
+            while(hi>lo+1&&Math.abs(mono[hi-1])<thr)hi--;
+            if(hi-lo>Math.floor(0.5*dec.sampleRate)){
+              var m2=new Float32Array(hi-lo);m2.set(mono.subarray(lo,hi));mono=m2;
+            }
+          }
+          // кроссфейд с запасом: 2 секунды, равный по мощности — шов и провал громкости не слышны
+          var L2=mono.length,cf=Math.min(Math.floor(2*dec.sampleRate),Math.floor(L2/4));
+          if(cf<1)cf=1;
+          var sm=new Float32Array(Math.max(1,L2-cf));
           for(i=0;i<sm.length;i++){
-            sm[i]=(i<cf)?(ch0[i]*(i/cf)+ch1[nL-cf+i]*(1-i/cf)):(ch0[i]+ch1[i])*0.5;
+            if(i<cf){var w0=Math.sqrt(i/cf),w1=Math.sqrt(1-i/cf);sm[i]=mono[i]*w0+mono[L2-cf+i]*w1;}
+            else sm[i]=mono[i];
           }
           var sum=0;for(i=0;i<sm.length;i++)sum+=sm[i]*sm[i];
           var r=Math.sqrt(sum/sm.length);
